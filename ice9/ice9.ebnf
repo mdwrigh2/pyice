@@ -1,0 +1,306 @@
+EBNF for ice9
+
+All input is enclosed in quotes.  This is meant to be taken literally.
+Anything outside of quotes has a meta-meaning.  For example,
+
+	{ exp }
+ 
+means zero or more exp's.  Whereas,
+
+	'{' exp '}'
+
+means LBRACE followed by exp followed by RBRACE.
+
+The start symbol is program.
+
+
+########### Begin EBNF ############
+
+program	-> {var|type|forward|proc} { stm }  # empty file is valid program!
+
+# 3 complex tokens (these are usually handled in the lexer)
+id	-> [A-Za-z][A-Za-z0-9_]*
+int	-> [0-9]+		# decimal integer literal
+string  -> "[^"\n]*" 		# double-quoted string: any char but " and \n
+	-> '[^'\n]*'  		# single-quoted string: any char but ' and \n
+
+stms	-> stm { stm }
+stm	-> if | do | fa | 'break' ';' | 'exit' ';'
+	-> 'return' ';'
+	-> lvalue ':=' exp ';'	# assignment statement
+	-> 'write' exp ';' | 'writes' exp ';'
+	-> exp ';'		# any exp is valid
+	-> ';'			# the "empty" statement
+
+if	-> 'if' exp '->' stms { '[]' exp '->' stms } 'fi'
+	-> 'if' exp '->' stms { '[]' exp '->' stms } '[]' 'else' '->' stms 'fi'
+
+do	-> 'do' exp '->' { stm } 'od'
+
+fa	-> 'fa' id ':=' exp 'to' exp '->' { stm } 'af'
+
+proc	-> 'proc' id '(' declist ')'
+		{type|var} {stm} 'end'
+	-> 'proc' id '(' declist ')' ':' typeid 
+		{type|var} {stm} 'end'
+
+idlist  -> id { ',' id}
+
+var	-> 'var' varlist ';'
+varlist  -> idlist ':' typeid { '[' int ']' } { ',' varlist}
+
+forward -> 'forward' id '(' declist ')' ';'
+	-> 'forward' id '(' declist ')' ':' typeid ';'
+
+type	-> 'type' id '=' typeid { '[' int ']' } ';'
+
+declist -> declistx
+	->            # empty
+declistx -> idlist ':' typeid { ',' declistx }
+
+typeid -> id			# This for semantics
+
+lvalue	-> id | lvalue '[' exp ']'
+
+exp	-> lvalue
+	-> int				# integer literal
+	-> 'true'			# boolean literal
+	-> 'false'			# boolean literal
+	-> string
+	-> 'read'
+	-> '-' exp
+	-> '?' exp
+	-> id '(' ')'			# procedure call
+	-> id '(' exp { ',' exp } ')'	# procedure call
+	-> exp '+' exp
+	-> exp '-' exp
+	-> exp '*' exp
+	-> exp '/' exp
+	-> exp '%' exp
+	-> exp '=' exp
+	-> exp '!=' exp
+	-> exp '>' exp
+	-> exp '<' exp
+	-> exp '>=' exp
+	-> exp '<=' exp
+	-> '(' exp ')'
+
+########### End EBNF ############
+
+############
+# Comments #
+############
+
+A comment extends from the first sharp (#) on a line to the end of the
+line (determined by the newline character).
+
+#############
+# Semantics #
+#############
+
+1. The expressions in 'if' and 'do' statements must be bool values.
+   For example: 
+
+	int x;
+	if x -> ... fi
+
+   is not semantically correct.  Instead use
+
+	if x != 0 -> ... fi
+
+2. The 'fa' statement
+
+	fa loop := lo to hi -> body af
+
+   executes the body once for every value of loop between lo and hi,
+   inclusive.  The expressions in 'fa' must be int.  The expressions
+   are executed exactly once and the body is executed at most hi - lo + 1
+   times.  The loop variable is an int and it is not assignable in the
+   body of the loop.  If hi = lo, the loop executes once.  If hi < lo, 
+   the statements in the loop are not executed.  The scope of the loop
+   variable is the fa statment: from fa to af.  It's declaration hides
+   any previously declared variable with the same name.
+
+3. The rule
+
+	typeid -> id
+
+   is only denoting semantics.  The terminals id and typeid are
+   syntactically indistinguishable.  However, semantically typeid
+   represents an id referring to a type (found in a different symbol
+   table from the other ids).
+
+4. The read expression returns an integer.  Thus
+
+	var a: int
+	a := read;
+
+   is correct.
+
+5. The write statement outputs an expression AND a newline.  The
+   writes statement omits the newline.
+
+6. The write and writes statements are over-loaded.  If type of exp is
+   an integer, then each evaluates the integer expression and outputs a
+   decimal representation of it.  For example:
+
+	write 1+5;
+
+   outputs the decimal '6'.  On the other hand, if exp is a string,
+   then the string is output.
+
+7. The exit statement terminates the program.
+
+8. Statements in the outermost scope are executed in order at startup.
+(Think of the outermost scope as being the C main procedure.)
+
+9. Boolean expression are short-circuit evaluated.  For example, in the
+   following expression the function f is not evaluated because the answer 
+   to the expression is known after the first clause.
+
+   	     true + f()
+
+10. Functions (procedures that return a value) are declared by
+    annotating a proc declaration with a return type.  For example:
+
+ 	proc f() : int ... end
+
+    This defines an implicit return variable with the same name as the
+    function.  In the example above there is a local variable named
+    'f' of type int.  The value returned by the function is the value
+    in f when it returns.
+
+11. The break statement is valid only in loops (fa or do).  It causes
+    execution of the loop to stop.  Control jumps immediately to the
+    first statement following the loop.
+
+12. The return statement in a proc definition forces a return from the
+    procedure.  A return outside of a proc ... end (at the level of
+    the file) is equivalent to an exit.
+
+#################
+# Symbol Tables #
+#################
+
+There are three symbol tables in ice9.  One each for types, variables,
+and procedures.  Initially, the types symbol table consists of three
+entries: 'int', 'bool', and 'string' which resolve to the three basic
+types.  The procedure table is initially loaded with 'int' the built
+operation.  The variables table is empty.  These entries are in the
+default scope.  They can be masked by a like definition in another
+scope.
+
+
+#################
+# Scoping rules #
+#################
+
+Variables, parameters, types, and procedures are visible beginning
+with their declaration.  If defined in a procedure, the visibility
+stops at the end of the defining procedure.  Otherwise visibility ends
+at the end of the file.  Visibility starts with the declaration
+itself, allowing recursive definitions.  A declaration in a nested
+scope overrides a previous declaration.  However, two declarations in
+the same scope is a name clash.
+
+FORWARD: A forward statement makes a name visible before its
+declaration.  This is useful for making mutually recursive
+declarations.  Forward declarations are only defined for procedures.
+
+#############
+# Operators #
+#############
+
+-  : T -> T, T={int,bool} 	  // unary minus or boolean not
+?  : bool -> int		  // conversion from boolean to integer
+-  : int x int -> int		  // integer subtraction
++  : T x T -> T, T={int,bool}	  // integer addition or boolean or
+*  : T x T -> T, T={int,bool}	  // integer multiplication or boolean and
+/  : int x int -> int		  // integer division
+=  : T x T -> bool, T={int,bool}  // comparison, equal
+!= : T x T -> bool, T={int,bool}  // comparison, not equal
+>  : int x int -> bool		  // comparison, greater than
+<  : int x int -> bool		  // comparison, less than
+>= : int x int -> bool		  // comparison, greater than or equal to
+<= : int x int -> bool		  // comparison, less than or equal to
+:= : T x T -> nil, T={int,bool,string} // assignment
+
+################################
+# Precedence and associativity #
+################################
+
+     Precedence 	| Associativity
+ (highest to lowest)	|
+========================|===============
+- (Unary minus)	?	| right
+------------------------|---------------
+* / %			| left
+------------------------|---------------
++ -			| left
+------------------------|---------------
+= != > < >= <=		| none
+----------------------------------------
+
+The ? operator does not associate semantically because of a type
+conflict.
+
+##############
+# Conversion #
+##############
+
+The ? operator converts a bool value to an int.  It converts true to 1
+and false to 0.
+
+	i := ? true;			# i gets 1
+	i := ? (1 != 1);		# i gets 0
+
+There is no inverse operator to ?.  However, an int is easily converted
+a bool:
+
+	b := x != 0;
+
+The built-in function int() converts a string to an integer.  In the
+following code, both write statements output '5'.
+
+	var a: string
+	var b: int
+	a := "5";
+	b := int(a);
+	write a;
+	write b;
+
+--Begin Output--
+5
+5
+--End Output ---
+
+There is no inverse conversion (from integer to string).
+
+##########
+# Arrays #
+##########
+
+Arrays are indexed from 0 to size-1.  Bounds are checked.  An index
+that is < 0 or > size-1 generates a runtime error.
+
+#########
+# Notes #
+#########
+
+1. Type checking on user-defined types is structure based.  That is
+two types with the same structure are equivalent even if different
+names are used.
+
+2. Basic types are passed by value.  Array parameters are passed by
+reference, similar to the C calling convention. 
+
+3. In forward declarations, the name of the parameters are not
+important.  Only the names of the parameters in the actual proc
+declaration are meaningful.
+
+4. There are only signed integers.
+
+5. The maximum integer value must be at least 2^31 - 1
+(2147483647). The negative maximum integer must be at least - 2^31
+(-2147483648). This corresponds to 32-bit, two-complement signed
+integers.
