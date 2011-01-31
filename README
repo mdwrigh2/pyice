@@ -1,1 +1,1 @@
-Pyice is a compiler for the Ice9 language written in Python.
+Pyice is a compiler for the Ice9 language written in Python, using PLY.
