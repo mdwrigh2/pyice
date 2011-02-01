@@ -5,9 +5,9 @@ _tabversion = '3.2'
 
 _lr_method = 'LALR'
 
-_lr_signature = '\xfet\x98T\x04X\xbf\x0f\x1e\x9d>rL\xcb\x87$'
+_lr_signature = 'w\xe5o\xa98NY\xb5\x12\t\xc0)Z\xafv`'
     
-_lr_action_items = {'INT':([0,],[1,]),'RETURN':([0,],[3,]),'SEMI':([0,1,3,4,],[5,-4,6,7,]),'$end':([2,5,6,7,],[0,-3,-1,-2,]),}
+_lr_action_items = {'STAR':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,22,22,-10,22,22,-27,-12,22,22,-18,22,22,22,22,-19,22,22,22,-20,-13,]),'LPAREN':([0,2,5,7,9,10,20,21,22,24,25,26,27,28,29,30,31,32,50,],[2,2,2,2,2,20,2,2,2,2,2,2,2,2,2,2,2,2,2,]),'READ':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,]),'RETURN':([0,],[1,]),'TRUE':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,]),'MINUS':([0,2,3,4,5,7,8,9,11,12,14,16,17,18,19,20,21,22,24,25,26,27,28,29,30,31,32,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,50,],[5,5,-9,-6,5,5,-8,5,-7,-5,31,31,-10,31,31,5,5,5,5,5,5,5,5,5,5,5,5,-27,-12,31,31,-18,31,31,31,-16,-19,31,31,-17,-20,-13,5,]),'NEQ':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,29,29,-10,29,29,-27,-12,29,None,-18,None,None,None,-16,-19,None,None,-17,-20,-13,]),'LE':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,26,26,-10,26,26,-27,-12,26,None,-18,None,None,None,-16,-19,None,None,-17,-20,-13,]),'RPAREN':([3,4,8,11,12,16,17,18,20,33,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,51,],[-9,-6,-8,-7,-5,33,-10,-11,35,-27,-12,49,-14,-23,-18,-25,-24,-26,-16,-19,-22,-21,-17,-20,-13,-15,]),'SEMI':([0,1,3,4,8,11,12,14,17,18,19,33,35,38,39,40,41,42,43,44,45,46,47,48,49,],[6,15,-9,-6,-8,-7,-5,23,-10,-11,34,-27,-12,-23,-18,-25,-24,-26,-16,-19,-22,-21,-17,-20,-13,]),'LT':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,25,25,-10,25,25,-27,-12,25,None,-18,None,None,None,-16,-19,None,None,-17,-20,-13,]),'QUEST':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,]),'PLUS':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,27,27,-10,27,27,-27,-12,27,27,-18,27,27,27,-16,-19,27,27,-17,-20,-13,]),'COMMA':([3,4,8,11,12,17,18,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,-10,-11,-27,-12,50,-23,-18,-25,-24,-26,-16,-19,-22,-21,-17,-20,-13,]),'$end':([6,13,15,23,34,],[-3,0,-1,-2,-4,]),'GT':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,21,21,-10,21,21,-27,-12,21,None,-18,None,None,None,-16,-19,None,None,-17,-20,-13,]),'STRING':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,]),'WRITE':([0,],[9,]),'GE':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,24,24,-10,24,24,-27,-12,24,None,-18,None,None,None,-16,-19,None,None,-17,-20,-13,]),'SLASH':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,28,28,-10,28,28,-27,-12,28,28,-18,28,28,28,28,-19,28,28,28,-20,-13,]),'EQ':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,30,30,-10,30,30,-27,-12,30,None,-18,None,None,None,-16,-19,None,None,-17,-20,-13,]),'ID':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,]),'FALSE':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,]),'INT':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,]),'MOD':([3,4,8,11,12,14,16,17,18,19,33,35,37,38,39,40,41,42,43,44,45,46,47,48,49,],[-9,-6,-8,-7,-5,32,32,-10,32,32,-27,-12,32,32,-18,32,32,32,32,-19,32,32,32,-20,-13,]),}
 
 _lr_action = { }
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'stm':([0,],[2,]),'exp':([0,],[4,]),}
+_lr_goto_items = {'stm':([0,],[13,]),'argument_list':([20,50,],[36,51,]),'exp':([0,2,5,7,9,20,21,22,24,25,26,27,28,29,30,31,32,50,],[14,16,17,18,19,37,38,39,40,41,42,43,44,45,46,47,48,37,]),}
 
 _lr_goto = { }
 for _k, _v in _lr_goto_items.items():
@@ -26,9 +26,34 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> stm","S'",1,None,None,None),
-  ('stm -> RETURN SEMI','stm',2,'p_statement_02','pyice_parser.py',13),
-  ('stm -> exp SEMI','stm',2,'p_statement_03','pyice_parser.py',16),
-  ('stm -> SEMI','stm',1,'p_statement_04','pyice_parser.py',19),
-  ('exp -> INT','exp',1,'p_expression','pyice_parser.py',22),
-  ('empty -> <empty>','empty',0,'p_empty','pyice_parser.py',31),
+  ('stm -> RETURN SEMI','stm',2,'p_statement_02','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',23),
+  ('stm -> exp SEMI','stm',2,'p_statement_03','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',26),
+  ('stm -> SEMI','stm',1,'p_statement_04','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',29),
+  ('stm -> WRITE exp SEMI','stm',3,'p_statement_05','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',32),
+  ('exp -> INT','exp',1,'p_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',38),
+  ('exp -> TRUE','exp',1,'p_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',39),
+  ('exp -> FALSE','exp',1,'p_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',40),
+  ('exp -> STRING','exp',1,'p_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',41),
+  ('exp -> READ','exp',1,'p_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',42),
+  ('exp -> MINUS exp','exp',2,'p_unary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',45),
+  ('exp -> QUEST exp','exp',2,'p_unary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',46),
+  ('exp -> ID LPAREN RPAREN','exp',3,'p_procedure_call_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',49),
+  ('exp -> ID LPAREN argument_list RPAREN','exp',4,'p_procedure_call_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',50),
+  ('argument_list -> exp','argument_list',1,'p_argument_list','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',53),
+  ('argument_list -> exp COMMA argument_list','argument_list',3,'p_argument_list','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',54),
+  ('exp -> exp PLUS exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',57),
+  ('exp -> exp MINUS exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',58),
+  ('exp -> exp STAR exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',59),
+  ('exp -> exp SLASH exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',60),
+  ('exp -> exp MOD exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',61),
+  ('exp -> exp EQ exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',62),
+  ('exp -> exp NEQ exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',63),
+  ('exp -> exp GT exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',64),
+  ('exp -> exp LT exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',65),
+  ('exp -> exp GE exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',66),
+  ('exp -> exp LE exp','exp',3,'p_binary_expression','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',67),
+  ('exp -> LPAREN exp RPAREN','exp',3,'p_expression_parens','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',70),
+  ('lvalue -> ID','lvalue',1,'p_lvalue','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',73),
+  ('lvalue -> lvalue LBRACK exp RBRACK','lvalue',4,'p_lvalue','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',74),
+  ('empty -> <empty>','empty',0,'p_empty','/home/mdwrigh2/code/CSC512/pyice/pyice_parser.py',76),
 ]
