@@ -114,6 +114,7 @@ def t_ID(t):
 
 def t_INT(t):
     r'[0-9]+'
+    t.value = int(t.value)
     return t
 
 def t_STRING(t):
