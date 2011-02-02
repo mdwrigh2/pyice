@@ -124,7 +124,7 @@ def t_STRING(t):
 # Handle ignored (whitespace) tokens 
 # ----------------------------------------
 def t_WHITESPACE(t):
-    r'[ \t]+'
+    r'[ \t\r\n\f\v]+'
     pass
 
 def t_NEWLINE(t):
