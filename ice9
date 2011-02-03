@@ -17,7 +17,7 @@ class Compiler:
             source = open(file, 'r')
             code = source.read()
             source.close
-            print self._parse(code)
+            self._parse(code)
         except ParseError as p:
             print "%s: Syntax error on line %d" % (file, p.lineno)
             sys.exit(1)

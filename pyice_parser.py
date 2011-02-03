@@ -68,14 +68,16 @@ def p_if_01(t):
     '''if : IF exp ARROW stms FI
           | IF exp ARROW stms ifboxes FI'''
 
-def p_if_02(t):
-    '''if : IF exp ARROW stms BOX ELSE ARROW stms FI
-          | IF exp ARROW stms ifboxes BOX ELSE ARROW stms FI'''
-
 def p_ifboxes(t):
-    ''' ifboxes : BOX exp ARROW stms
-                | BOX exp ARROW stms ifboxes'''
-    print "What am I matching here"
+    '''ifboxes : BOX exp ARROW stms ifboxes
+               | empty '''
+
+def p_if_02(t):
+    '''if : IF exp ARROW stms select'''
+
+def p_select(t):
+    ''' select : BOX exp ARROW stms select
+                | BOX ELSE ARROW stms FI'''
 
 def p_do(t):
     '''do : DO exp ARROW OD
@@ -134,7 +136,6 @@ def p_expression(t):
            | FALSE
            | STRING
            | READ'''
-    print t[1]
     #t[0] = t[1]
 
 def p_expression_02(t):
