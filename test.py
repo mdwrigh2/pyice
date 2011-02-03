@@ -16,7 +16,7 @@ COMPILER_EXE = './ice9'
 # - When a syntax error occurs, print the first token that could not be part of
 #   a valid program.
 # If you don't want to check the contents of error messages, set this to False.
-CHECK_ERROR_CONTENTS = False
+CHECK_ERROR_CONTENTS = True
 #
 # I can't check most error messages, since each person has their own. Run your
 # compiler on the following tests to make sure the error messages are sensible.
@@ -27,10 +27,6 @@ CHECK_ERROR_CONTENTS = False
 # - lex-comment-eof.9 (comment not terminated by newline)
 # - lex-str-eol-1.9   (string literal not terminated)
 # - lex-int-0.9       (integer literal too large)
-#
-# Also check that this isn't an error:
-# - write ??false;
-# I can't test this because I've already started on P2, where it's invalid.
 
 # TEST FILE FORMAT
 # ================
@@ -64,7 +60,8 @@ class ICE9Test(unittest.TestCase):
             self.fail('Compiler terminated with signal %d'%(compiler.returncode))
 
         seenDirective = False
-        for line in open(self.fn, 'r'):
+        for line in open(self.fn, 'rb'):
+            line = line.decode('latin-1')
             if not line.startswith('#:'):
                 continue
             seenDirective = True

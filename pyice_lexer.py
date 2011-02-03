@@ -139,7 +139,8 @@ def t_NEWLINE(t):
 # another worry is that the new lines aren't being counted properly.
 # I'll have to test this in my program output
 def t_COMMENT(t):
-    r'\#[^\n]*'
+    r'\#[^\n]*\n'
+    t.lexer.lineno += t.value.count("\n")
     pass
 
 
