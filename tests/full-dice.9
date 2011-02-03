@@ -1,0 +1,33 @@
+# random number generator
+#:compile
+
+# globals
+var Seed, CUTOFF : int;
+
+proc rand(limit: int): int
+    Seed := (Seed * 32719 + 3) % CUTOFF;
+    rand := ((Seed % limit) + 1);
+end
+
+proc roll()
+   var a, b: int;
+   a := rand(6);
+   b := rand(6);
+   writes a;
+   writes " + ";
+   writes b;
+   writes ' = ';
+   write a+b;
+end
+
+proc main()
+  CUTOFF := 32749;
+
+  writes "Enter seed value: ";
+  Seed := read % CUTOFF;
+
+  fa i := 1 to 10 -> roll(); af
+end
+
+main();
+

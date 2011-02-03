@@ -1,0 +1,19 @@
+# fibonacci program
+#:compile
+proc fib(n: int) : int
+  if n < 2 -> fib := n;
+  [] else -> fib := fib(n-1) + fib(n-2);
+  fi
+end
+
+var f: int;
+
+writes "What Fibonacci number to computer? ";
+f := read;
+if (f < 0) + (f > 100) -> write "Invalid: 0 < n < 101"; fi
+
+
+writes "Fibonacci of ";
+writes f;
+writes " is ";
+write fib(f);

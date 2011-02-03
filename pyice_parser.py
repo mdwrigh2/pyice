@@ -3,6 +3,12 @@ import pyice_lexer
 
 import sys
 
+class ParseError(Exception):
+    def __init__(self, lineno):
+        self.lineno = lineno
+    def __str__(self):
+        return repr(self.lineno)
+
 tokens = pyice_lexer.tokens
 
 precedence = (
@@ -11,6 +17,14 @@ precedence = (
     ('left', 'STAR', 'SLASH', 'MOD'),
     ('right', 'UMINUS')
 )
+
+start = 'program'
+
+debug = 1
+
+def log(msg):
+    if debug == 1:
+        print msg
 
 def p_program(t):
     ''' program : begins
@@ -55,12 +69,13 @@ def p_if_01(t):
           | IF exp ARROW stms ifboxes FI'''
 
 def p_if_02(t):
-    '''if : IF exp ARROW BOX ELSE ARROW stms FI
+    '''if : IF exp ARROW stms BOX ELSE ARROW stms FI
           | IF exp ARROW stms ifboxes BOX ELSE ARROW stms FI'''
 
 def p_ifboxes(t):
-    ''' ifboxes : BOX exp ARROW stms ifboxes
-                | empty'''
+    ''' ifboxes : BOX exp ARROW stms
+                | BOX exp ARROW stms ifboxes'''
+    print "What am I matching here"
 
 def p_do(t):
     '''do : DO exp ARROW OD
@@ -71,21 +86,17 @@ def p_fa(t):
           | FA ID ASSIGN exp TO exp ARROW stms AF'''
 
 def p_proc_01(t):
-    '''proc : PROC ID LPAREN declist RPAREN END'''
-def p_proc_02(t):
     '''proc : PROC ID LPAREN declist RPAREN typevars END'''
 
-def p_proc_03(t):
-    '''proc : PROC ID LPAREN declist RPAREN COLON typeid END'''
+def p_proc_02(t):
+    '''proc : PROC ID LPAREN declist RPAREN typevars stms END'''
 
-def p_proc_04(t): 
+def p_proc_03(t): 
     '''proc : PROC ID LPAREN declist RPAREN COLON typeid typevars END'''
 
-def p_proc_05(t):
-    '''proc : PROC ID LPAREN declist RPAREN COLON typeid stms END'''
-
-def p_proc_06(t):
+def p_proc_04(t):
     '''proc : PROC ID LPAREN declist RPAREN COLON typeid typevars stms END'''
+
 
 def p_typevars(t):
     ''' typevars : var typevars
@@ -99,14 +110,17 @@ def p_idlist(t):
 def p_var(t):
     ''' var : VAR varlist SEMI'''
 
-# Ignoring arrays in varlist
 def p_varlist(t):
     '''varlist : idlist COLON typeid
                | idlist COLON typeid COMMA varlist'''
 
 def p_varlist_arrays(t):
-    ''' varlist : idlist COLON typeid LBRACK INT RBRACK
-                | idlist COLON typeid LBRACK INT RBRACK varlist'''
+    ''' varlist : idlist COLON typeid intarrays
+                | idlist COLON typeid intarrays varlist'''
+
+def p_arrays(t):
+    ''' intarrays : LBRACK exp RBRACK
+                  | LBRACK exp RBRACK intarrays'''
 
 def p_forward(t):
     '''forward : FORWARD ID LPAREN declist RPAREN SEMI
@@ -120,10 +134,14 @@ def p_expression(t):
            | FALSE
            | STRING
            | READ'''
+    print t[1]
     #t[0] = t[1]
 
 def p_expression_02(t):
     ''' exp : ID'''
+
+def p_expression_array(t):
+    ''' exp : ID intarrays'''
 
 
 def p_unary_expression(t):
@@ -161,12 +179,17 @@ def p_binary_expression(t):
     #if t[2] == '+':
         #print "%d + %d" % (t[1], t[3])
 
+def p_expression_write(t):
+    ''' exp : WRITE exp
+            | WRITES exp'''
+
+
 def p_expression_parens(t):
     ''' exp : LPAREN exp RPAREN'''
 
 def p_lvalue(t):
     ''' lvalue : ID
-               | lvalue LBRACK exp RBRACK'''
+               | ID intarrays'''
 
 def p_typeid(t):
     ''' typeid : ID''' # just for semantics
@@ -180,7 +203,8 @@ def p_declistx(t):
                 | idlist COLON typeid COMMA declistx'''
 
 def p_type(t):
-    ''' type : TYPE ID EQ '''
+    ''' type : TYPE ID EQ typeid SEMI
+             | TYPE ID EQ typeid intarrays SEMI'''
 
 
 def p_empty(t):
@@ -188,7 +212,7 @@ def p_empty(t):
     pass
 
 def p_error(t):
-    print "Syntax error around line %d" % t.lineno
-    sys.exit()
+    print t
+    raise ParseError(t.lineno)
 
 yacc.yacc(debug=1)

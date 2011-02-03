@@ -1,0 +1,103 @@
+# Infix Calculator
+# by Sean Bartell
+#:compile
+
+# This is an infix expression evaluator. Since ICE9 can input only integers,
+# you must enter expressions with:
+#  '(' -> 1 1
+#  ')' -> 2 2
+#  '+' -> 3
+#  '-' -> 4
+#  '*' -> 5
+#  '/' -> 6
+#  '%' -> 7 (modulus)
+#  '^' -> 8 (exponentiation)
+# Use 0 to calculate the result and -1 -1 to end the session.
+#
+# Examples:
+# - 144^2               -> 144 8 2 0
+# - (4+5*6)^2           -> 1 1 4 3 5 5 6 2 2 8 2 0
+# - 1-(2-4)-8           -> 1 4 1 1 2 4 4 2 2 4 8 0
+# - 3+2^15*28/(1-5)^2^3 -> 3 3 2 8 15 5 28 6 1 1 1 4 5 2 2 8 2 8 3 0
+
+# This is implemented with a recursion-based operator precedence parser. A hack
+# is used to support parentheses without supporting equal precedence; if you
+# misuse parentheses, the results will be unpredictable.
+
+# Grammar:
+# start -> # exp0 #
+# exp0 -> exp0 + exp1 | exp0 - exp1 | exp1
+# exp1 -> exp1 * exp2 | exp1 / exp2 | exp1 % exp2 | exp2
+# exp2 -> exp3 ^ exp2 | exp3
+# exp3 -> NUM | NUM ( exp0 ) NUM
+
+# Precedence table:
+# (if two precedences are equal, it's treated as if the first were greater)
+#   #)+*^(
+#   011233
+# #0> <<<<
+# (0 <<<<<
+# +1>>><<<
+# *2>>>><<
+# ^2>>>><<
+# )3>>>>> 
+
+var nextop : int;
+var lprec, rprec : int[9];
+
+proc pow(base, exponent : int) : int
+  pow := 1;
+  fa i := 1 to exponent ->
+    pow := pow * base;
+  af
+end
+
+proc calc(prevprec : int) : int
+  var val, op, right : int;
+  val := read;
+  nextop := read;
+  if (nextop < 0) + (nextop > 8) ->
+    exit;
+  fi
+  do prevprec < rprec[nextop] ->
+    op := nextop;
+    right := calc(lprec[op]);
+    # op = 0 (start/end) never happens
+    if op = 1 -> # left parenthesis
+      val := right;
+    [] op = 2 -> # right parenthesis
+      # By returning now, we force the '(' to be evaluated too, eliminating
+      # both.
+      calc := val;
+      return;
+    [] op = 3 ->
+      val := val + right;
+    [] op = 4 ->
+      val := val - right;
+    [] op = 5 ->
+      val := val * right;
+    [] op = 6 ->
+      val := val / right;
+    [] op = 7 ->
+      val := val % right;
+    [] op = 8 ->
+      val := pow(val, right);
+    fi
+  od
+  calc := val;
+end
+
+lprec[0] := 0; rprec[0] := 0;
+lprec[1] := 0; rprec[1] := 3;
+lprec[2] := 3; rprec[2] := 1;
+lprec[3] := 1; rprec[3] := 1;
+lprec[4] := 1; rprec[4] := 1;
+lprec[5] := 2; rprec[5] := 2;
+lprec[6] := 2; rprec[6] := 2;
+lprec[7] := 2; rprec[7] := 2;
+lprec[8] := 2; rprec[8] := 3;
+
+do true ->
+  writes "> ";
+  write calc(lprec[0]);
+od

@@ -1,5 +1,6 @@
 import lex
 import re
+import sys
 
 # ----------------------------------------
 # Reserved words
@@ -27,9 +28,7 @@ reserved = (
     'FALSE',
     'WRITE',
     'WRITES',
-    'READ',
-    'INT',
-    'STRING'
+    'READ'
 )
 
 # ----------------------------------------
@@ -59,6 +58,8 @@ tokens = reserved + (
     'LT',
     'GE',
     'LE',
+    'INT',
+    'STRING',
     'ID'
 )
 
@@ -119,12 +120,14 @@ def t_INT(t):
 
 def t_STRING(t):
     r'("[^"\n]*")|(\'[^\'\n]*\')' # match either double or single quoted string literals
+    return t
 
 # ----------------------------------------
 # Handle ignored (whitespace) tokens 
 # ----------------------------------------
 def t_WHITESPACE(t):
-    r'[ \t\r\n\f\v]+'
+    r'[ \t\r\f\v\n]+'
+    t.lexer.lineno += t.value.count("\n")
     pass
 
 def t_NEWLINE(t):
@@ -150,6 +153,7 @@ def t_error(t):
         print "unterminated string"
     else:
         print "parse error near %s" % t.value
+    sys.exit(1)
     
 # Give it a main function to test the lexer
 

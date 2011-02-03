@@ -1,0 +1,18 @@
+#:compile
+var string : int;
+proc bool() : int
+  type int = bool[1];
+  var int : int;
+  int[0] := string > 7;
+  fa string := 1 to 17 ->
+    int[0] := int[0] != (string > 0);
+  af
+  bool := ?int[0];
+end
+string := 17;
+write bool();
+string := 7;
+write bool();
+string := 0;
+write bool();
+# Confused? Carefully re-read the "Symbol Tables" and "Scoping Rules" sections.

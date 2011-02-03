@@ -1,0 +1,34 @@
+#! /usr/bin/env python
+import yacc
+
+import pyice_parser
+
+from pyice_parser import ParseError
+
+import sys
+
+class Compiler:
+
+    def _parse(self, code):
+        self.ast = yacc.parse(code)
+
+    def compile(self, file):
+        try:
+            source = open(file, 'r')
+            code = source.read()
+            source.close
+            print self._parse(code)
+        except ParseError as p:
+            print "%s: Syntax error on line %d" % (file, p.lineno)
+            sys.exit(1)
+
+
+
+def start_compiler():
+    files = sys.argv[1:]
+
+    for file in files:
+        print Compiler().compile(file)
+
+if __name__ == '__main__':
+    start_compiler()
