@@ -2,6 +2,13 @@ import lex
 import re
 import sys
 
+class LexError(Exception):
+    def __init(self, lineno, token):
+        self.lineno = lineno
+        self.token = token
+    def __str__(self):
+        return repr(self.token)
+
 # ----------------------------------------
 # Reserved words
 # They are also tokens
@@ -149,12 +156,13 @@ def t_COMMENT(t):
 # ----------------------------------------
 
 def t_error(t):
-    print "On line %d: " % (t.lineno,) + "",
-    if t.value[0] == '"' or t.value[0] == "'":
-        print "unterminated string"
-    else:
-        print "parse error near %s" % t.value
-    sys.exit(1)
+    #print "On line %d: " % (t.lineno,) + "",
+    #if t.value[0] == '"' or t.value[0] == "'":
+        #print "unterminated string"
+    #else:
+        #print "parse error near %s" % t.value
+    #sys.exit(1)
+    raise LexError(t.lineno, t.value)
     
 # Give it a main function to test the lexer
 

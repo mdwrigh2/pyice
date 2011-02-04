@@ -4,6 +4,7 @@ import yacc
 import pyice_parser
 
 from pyice_parser import ParseError
+from pyice_lexer import LexError
 
 import sys
 
@@ -19,7 +20,10 @@ class Compiler:
             source.close
             self._parse(code)
         except ParseError as p:
-            print "%s: Syntax error on line %d" % (file, p.lineno)
+            print >> sys.stderr, "line %d: syntax error near %s" % (p.lineno, p.token)
+            sys.exit(1)
+        except LexError as l:
+            print >> sys.stderr, "line %d: illegal character %s" % (l.lineno, l.token)
             sys.exit(1)
 
 
@@ -28,7 +32,7 @@ def start_compiler():
     files = sys.argv[1:]
 
     for file in files:
-        print Compiler().compile(file)
+        Compiler().compile(file)
 
 if __name__ == '__main__':
     start_compiler()
