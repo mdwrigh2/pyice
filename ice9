@@ -19,10 +19,10 @@ class Compiler:
             code = source.read()
             source.close
             self._parse(code)
-        except ParseError as p:
+        except ParseError, p:
             print >> sys.stderr, "line %d: syntax error near %s" % (p.lineno, p.token)
             sys.exit(1)
-        except LexError as l:
+        except LexError, l:
             print >> sys.stderr, "line %d: illegal character %s" % (l.lineno, l.token)
             sys.exit(1)
 
