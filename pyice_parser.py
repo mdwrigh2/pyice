@@ -4,10 +4,11 @@ import pyice_lexer
 import sys
 
 class ParseError(Exception):
-    def __init__(self, lineno):
+    def __init__(self, lineno, token):
         self.lineno = lineno
+        self.token = token
     def __str__(self):
-        return repr(self.lineno)
+        return repr(self.token)
 
 tokens = pyice_lexer.tokens
 
@@ -22,9 +23,6 @@ start = 'program'
 
 debug = 1
 
-def log(msg):
-    if debug == 1:
-        print msg
 
 def p_program(t):
     ''' program : begins
@@ -216,7 +214,6 @@ def p_empty(t):
     pass
 
 def p_error(t):
-    print t
-    raise ParseError(t.lineno)
+    raise ParseError(t.lineno, t.value)
 
-yacc.yacc(debug=1)
+yacc.yacc(debug)
