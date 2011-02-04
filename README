@@ -1,3 +1,12 @@
 Pyice is a compiler for the Ice9 language written in Python, using PLY.
 
 It's pronounced in one syllable, rhymes with mice.
+
+USAGE
+./ice9 [files]
+
+Output:
+Nothing if compilation succeeds, otherwise an error message on stderr
+
+Requires:
+Python, versions 2.4.3 and 2.6.6 tested

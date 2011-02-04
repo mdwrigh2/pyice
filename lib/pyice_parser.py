@@ -216,4 +216,4 @@ def p_empty(t):
 def p_error(t):
     raise ParseError(t.lineno, t.value)
 
-yacc.yacc(debug)
+yacc.yacc()
