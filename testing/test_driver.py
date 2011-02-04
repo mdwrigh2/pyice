@@ -30,4 +30,5 @@ if fails:
     for fail in fails:
         print fail
 else:
-    print "All tests passed!"
+    print "All tests passed!\033[0m"
+    
