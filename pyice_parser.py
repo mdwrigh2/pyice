@@ -118,17 +118,20 @@ def p_varlist(t):
 
 def p_varlist_arrays(t):
     ''' varlist : idlist COLON typeid intarrays
-                | idlist COLON typeid intarrays varlist'''
+                | idlist COLON typeid intarrays COMMA varlist'''
 
 def p_arrays(t):
-    ''' intarrays : LBRACK exp RBRACK
-                  | LBRACK exp RBRACK intarrays'''
+    ''' intarrays : LBRACK INT RBRACK
+                  | LBRACK INT RBRACK intarrays'''
 
 def p_forward(t):
     '''forward : FORWARD ID LPAREN declist RPAREN SEMI
                | FORWARD ID LPAREN declist RPAREN COLON typeid SEMI'''
 
 
+def p_exp_array(t):
+    ''' exparray : LBRACK exp RBRACK
+                  | LBRACK exp RBRACK exparray '''
 
 def p_expression(t):
     '''exp : INT
@@ -142,7 +145,7 @@ def p_expression_02(t):
     ''' exp : ID'''
 
 def p_expression_array(t):
-    ''' exp : ID intarrays'''
+    ''' exp : ID exparray'''
 
 
 def p_unary_expression(t):
@@ -190,7 +193,7 @@ def p_expression_parens(t):
 
 def p_lvalue(t):
     ''' lvalue : ID
-               | ID intarrays'''
+               | ID exparray'''
 
 def p_typeid(t):
     ''' typeid : ID''' # just for semantics
