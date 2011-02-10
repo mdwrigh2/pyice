@@ -19,6 +19,7 @@ class Compiler:
             code = source.read()
             source.close
             self._parse(code)
+            print self.ast
         except ParseError, p:
             print >> sys.stderr, "line %d: syntax error near %s" % (p.lineno, p.token)
             sys.exit(1)

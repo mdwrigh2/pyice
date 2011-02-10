@@ -179,7 +179,7 @@ def p_binary_expression(t):
             | exp GE exp
             | exp LE exp'''
     #if t[2] == '+':
-        #print "%d + %d" % (t[1], t[3])
+        #t[0] = t[1] + t[3]
 
 def p_expression_write(t):
     ''' exp : WRITE exp
