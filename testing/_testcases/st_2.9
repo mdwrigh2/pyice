@@ -1,0 +1,11 @@
+# Description: tests the presence of "empty" statements in several areas
+# Expected: pass 
+
+proc foo ()
+   ;
+end;
+
+if 1=1 -> ; fi;		# two empty stms
+do 1 -> ; od;
+
+;;;;;;;;;;		# several empty stms

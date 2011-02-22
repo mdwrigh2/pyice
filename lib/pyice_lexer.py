@@ -3,7 +3,7 @@ import re
 import sys
 
 class LexError(Exception):
-    def __init(self, lineno, token):
+    def __init__(self, lineno, token):
         self.lineno = lineno
         self.token = token
     def __str__(self):
@@ -133,7 +133,7 @@ def t_STRING(t):
 # Handle ignored (whitespace) tokens 
 # ----------------------------------------
 def t_WHITESPACE(t):
-    r'[ \t\r\f\v\n]+'
+    r'[ \t\r\v\f\n]+'
     t.lexer.lineno += t.value.count("\n")
     pass
 

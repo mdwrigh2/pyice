@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 import lib.yacc as yacc
 
+
 import lib.pyice_parser
+
+import sys
 
 from lib.pyice_parser import ParseError
 from lib.pyice_lexer import LexError
@@ -11,14 +14,8 @@ import sys
 class Compiler:
 
     def _parse(self, code):
-        self.ast = yacc.parse(code)
-
-    def compile(self, file):
         try:
-            source = open(file, 'r')
-            code = source.read()
-            source.close
-            self._parse(code)
+            self.ast = yacc.parse(code)
         except ParseError, p:
             print >> sys.stderr, "line %d: syntax error near %s" % (p.lineno, p.token)
             sys.exit(1)
@@ -26,13 +23,26 @@ class Compiler:
             print >> sys.stderr, "line %d: illegal character %s" % (l.lineno, l.token)
             sys.exit(1)
 
+    def compile_file(self, filename):
+        source = open(filename, 'r')
+        code = source.read()
+        source.close
+        self._parse(code)
+    
+    def compile_input(self, inputs):
+        self._parse(inputs)
+
 
 
 def start_compiler():
     files = sys.argv[1:]
 
-    for file in files:
-        Compiler().compile(file)
+    if files:
+        for filename in files:
+            Compiler().compile_file(filename)
+    else:
+        Compiler().compile_input(sys.stdin.read())
+
 
 if __name__ == '__main__':
     start_compiler()

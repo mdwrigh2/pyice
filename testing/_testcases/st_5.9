@@ -1,0 +1,13 @@
+# Description: Unmatched od statement
+# Expected: fail
+
+do true -> 1; od
+
+do true ->
+   do true ->
+      do true ->
+         do true ->
+           1;
+         od
+      od
+od

@@ -1,0 +1,16 @@
+# Description: Missing "to" in stmt
+# Expected: fail (in line 7)
+
+fa i := 1 to 5 -> ; af
+fa i := 1 to 5 ->
+   fa j := 1 to 5 ->
+      fa k := 1 5 ->
+	 ;
+      af
+   af
+af
+fa i := min(x) to max(x) -> ; af
+fa i := min(x)*5-10/3 to 10*5 -> ; af
+fa i := 1 to 6 ->
+   do i < j -> ; od
+af

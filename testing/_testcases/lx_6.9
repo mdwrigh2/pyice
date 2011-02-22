@@ -1,0 +1,22 @@
+# Test area: Lexical Analysis
+# Test number: 6
+# Purpose: Meaningless program to list all keywords
+
+forward foo ();
+proc bar ()
+  var a : int;
+  type INT = int;
+  write a;
+  return;
+end
+
+if read>1 -> 1;
+[] else -> 2;
+fi
+do 1 -> 1; od
+fa i := 2 to 3 ->
+    break;
+af
+true;
+false;
+read;

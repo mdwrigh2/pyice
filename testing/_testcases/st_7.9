@@ -1,0 +1,30 @@
+# Description: Missing expr/stmt after []
+# Expected: fail
+
+if 1 -> 2; fi
+
+if 0 -> 3;
+[] 1 -> 4;
+fi
+
+if 1 -> 2;
+[] else -> return;
+fi
+
+if 1 -> 2;
+[] 3 -> 4;
+[] 5 -> 6;
+fi
+
+if 1 -> if 2 -> if 3 -> 4; fi fi fi
+
+if 1 ->
+   if 2 ->
+      if 3 -> 4; fi
+   [] ;
+   [] else -> 7;
+   fi
+[] else -> 8;
+fi
+
+
