@@ -3,7 +3,7 @@ class SymbolTable():
         self.symbol_tables = [{}]
 
     def lookup(self, var):
-        for table in self.symbol_tables:
+        for table in reversed(self.symbol_tables):
             if var in table:
                 return table[var]
 
@@ -17,6 +17,9 @@ class SymbolTable():
 
     def insert(self, var, node):
         self.symbol_tables[-1][var] = node
+
+    def __str__(self):
+        return str(self.symbol_tables)
 
 class SymbolLookupError(Exception):
     def __init__(self,value):
