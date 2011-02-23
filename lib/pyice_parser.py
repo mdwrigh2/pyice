@@ -21,7 +21,6 @@ precedence = (
 
 start = 'program'
 
-debug = 1
 
 
 def p_program(t):
@@ -149,13 +148,13 @@ def p_expression_array(t):
 def p_unary_expression(t):
     ''' exp : MINUS exp %prec UMINUS
             | QUEST exp'''
-    #if t[1] == '-':
-        #t[0] = -t[2]
-    #else:
-        #if t[2]:
-            #t[0] = 1
-        #else:
-            #t[0] = 0
+    if t[1] == '-':
+        t[0] = -t[2]
+    else:
+        if t[2]:
+            t[0] = 1
+        else:
+            t[0] = 0
 
 def p_procedure_call_expression(t):
     ''' exp : ID LPAREN RPAREN
@@ -178,8 +177,6 @@ def p_binary_expression(t):
             | exp LT exp
             | exp GE exp
             | exp LE exp'''
-    #if t[2] == '+':
-        #t[0] = t[1] + t[3]
 
 def p_expression_write(t):
     ''' exp : WRITE exp
@@ -216,4 +213,4 @@ def p_empty(t):
 def p_error(t):
     raise ParseError(t.lineno, t.value)
 
-yacc.yacc()
+yacc.yacc(debug=1)
