@@ -1,6 +1,8 @@
 import yacc
 import pyice_lexer
 
+import symbol_table
+
 import sys
 
 class ParseError(Exception):
@@ -22,6 +24,9 @@ precedence = (
 start = 'program'
 
 
+variables = symbol_table.SymbolTable()
+functions = symbol_table.SymbolTable()
+types     = symbol_table.SymbolTable()
 
 def p_program(t):
     ''' program : begins
@@ -207,8 +212,14 @@ def p_type(t):
 
 
 def p_empty(t):
-    'empty :'
+    '''empty :'''
     pass
+
+def p_push_table(t):
+    '''push_table :'''
+
+def p_pop_table(t):
+    '''pop_table :'''
 
 def p_error(t):
     raise ParseError(t.lineno, t.value)
