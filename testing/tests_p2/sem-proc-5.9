@@ -1,0 +1,19 @@
+#:compile
+var x : int;
+proc f(x, y : int) : int
+  f := x + y;
+end
+proc g(x : int) : int
+  var y : int;
+  y := -5;
+  g := x - y;
+end
+var y : int;
+proc h(X : int, Y : int)
+  x := X;
+  y := Y;
+end
+h(2501, 9999);
+write f(g(y), g(y));
+h(f(y, y), g(x));
+write f(f(y, x), f(x, y));

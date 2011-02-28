@@ -1,0 +1,17 @@
+#:compile
+# None of these expressions has any effect.
+var x : int, t : int[64];
+proc int(x : string) : int
+end
+x := 8;
+t[4] := 7;
+;
+x;
+3;
+true;
+false;
+'who';
+"what";
+-?(x > 3) * t[4];
+-x > 3 * t[4];
+t[x-4] % int('54');

@@ -1,0 +1,13 @@
+#:compile
+# from tbarik
+proc foo(q : int) : int
+    type int = bool; # SCARY (type shadow)!
+    var x : int; # Really a BOOL now.
+    write ? x;
+    write q;
+    foo := q;
+end
+
+proc bar(q : int) : int
+    bar := foo(3) + q;
+end

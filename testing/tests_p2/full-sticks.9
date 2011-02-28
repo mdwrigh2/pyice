@@ -1,0 +1,122 @@
+# stick game
+#:compile
+
+var N: int;		# the current number of sticks
+var pick, k: int;
+var picktext: string;
+
+proc check(): int
+   var ans: int;
+   fa i := 1 to 3 ->
+      writes "Enter number of sticks: ";
+      check := read;
+      if check < 15 ->
+         writes check;
+      	 writes " is too few sticks; pick a larger number. ";
+      [] check < 100 -> 
+      	 return; 
+      [] else ->
+         fa j := 1 to 3 ->
+	    writes check;
+	    write " is a lot of sticks";
+      	    writes "Do you really want to play this long of a game? 0=no / 1= yes: ";
+	    ans := read;
+      	    if (ans = 1) * (check <= 200) -> 
+      	       write "OK";
+	       return;
+      	    [] ans = 1 -> 
+	       write "Well I don't!"; 
+	       exit;
+	    [] ans = 0 -> 
+      	       break;
+	    [] else -> 
+      	       write "I don't understand your answer.";
+	    fi
+         af
+         if ans != 1 -> exit; fi
+      fi
+   af
+   exit;
+end
+
+proc error()
+   write "Oops, I got confused and let you take too many sticks.";
+   write "Game over.";
+   exit;
+end
+
+proc mypick(n: int) : int
+   var mod : int;
+   if n < 0 ->
+      error();		# should never get here
+   [] n = 1 ->
+      mypick := 1;
+   [] n < 4 ->
+      mypick := n - 1;
+   [] else ->
+      mypick := (n-1)%4;
+      if mypick = 0 -> mypick := 1; fi
+   fi
+end
+
+writes "Do you want instructions? 0=no / 1= yes: ";
+k := read;
+if k = 1 ->
+   write "We alternate picking 1, 2, or 3 sticks.  The one who picks the last";
+   write "stick loses.  That will be you.";
+   write "You go first.";
+fi
+
+# get the starting number of sticks
+N := check();
+
+write "You must pick 1, 2, or 3 sticks each turn.";
+do N > 0 ->
+   writes "There are ";
+   writes N;
+   write " sticks remaining.";
+   writes "It is your turn.  How many do you want? ";
+   k := 0;
+   do k < 4 ->
+      k := k + 1;
+      pick := read;
+      writes "You picked ";
+      write pick;
+      if (pick < 1) + (pick > 3) ->
+      	 writes "You must pick 1, 2, or 3 sticks.  Try again: ";
+      [] pick > N ->
+      	 writes "There are only ";
+	 writes N;
+	 writes " sticks.  Try again: ";
+      [] else -> break;
+      fi
+   od
+
+   if (pick < 1) + (pick > 3) ->
+      write "You don't seem to understand this game.  Good bye.";
+      exit;
+   fi
+
+   N := N - pick;
+   if N < 0 -> 
+      error();
+   [] N = 0 ->
+      write "I won.";
+      break;
+   [] N = 1 ->
+      write "There is only one stick remaining.  I must pick it.";
+      write "Congratulations!  You won.";
+      break;
+   [] else ->
+      writes "There are ";
+      writes N;
+      write " sticks remaining.";
+      writes "It is my pick.  I pick ";
+      pick := mypick(N);
+      writes pick;
+      write " sticks.";
+      N := N - pick;
+   fi
+od
+
+write "Thanks";

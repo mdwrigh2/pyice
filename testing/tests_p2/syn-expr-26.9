@@ -1,0 +1,10 @@
+#:compile
+proc f(x, y : int) : int
+end
+if f(read, read + 2) > read ->
+  write read;
+[] else ->
+  write ?-(read != read);
+  write ?----(read % read <= read);
+  write ?((read > 0) != false);
+fi

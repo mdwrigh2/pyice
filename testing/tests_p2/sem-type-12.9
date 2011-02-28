@@ -1,0 +1,8 @@
+#:compile
+# Turns out the built-in types have their own, outer scope, so they can be
+# shadowed.
+type string = bool;
+type bool = int;
+var x : string, y : bool;
+y := 17;
+x := y != 0;

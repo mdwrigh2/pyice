@@ -1,0 +1,17 @@
+#:compile
+type nil = int[0];
+type nul = int[0];
+forward f(x : nil) : int;
+var a : nil;
+proc f(x : nul) : int
+  f := 1351;
+  fa i := 0 to -1 ->
+    f := f + x[i];
+  af
+end
+fa i := 0 to 20 ->
+  if i < 0 ->
+    a[i] := 9981*i;
+  fi
+af
+write f(a);

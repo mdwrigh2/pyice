@@ -16,7 +16,6 @@ class ReadNode(object):
 
 class BinOpNode(object):
     def __init__(self, op, lnode, rnode, lineno):
-        self.type = 'BinOpNode'
         if op == '+':
             if lnode.type == ('bool',[]) and rnode.type == ('bool',[]):
                 # Boolean or
@@ -93,11 +92,13 @@ class UnaryOpNode(object):
         if op == '-':
             if child.type == ('int', []):
                 self.type = ('int', [])
+            elif child.type == ('bool', []):
+                self.type = ('bool', [])
             else:
                 raise TypeError(lineno, op)
         elif op == '?':
             if child.type == ('bool', []):
-                self.type = ('bool', [])
+                self.type = ('int', [])
             else:
                 raise TypeError(lineno, op)
 
@@ -166,9 +167,12 @@ class DoNode(object):
             raise TypeError(lineno, 'do')
 
 class ForNode(object):
-    def __init__(self, initial, final, stmts = None, lineno = 0):
+    def __init__(self,init_name, initial, final, stms = None, lineno = 0):
         if initial.type == ('int', []) and final.type == ('int', []):
-            pass
+            self.init_name = init_name
+            self.initial = initial
+            self.final = final
+            self.stms = stms
         else:
             raise TypeError(lineno, 'fa')
 
@@ -181,14 +185,44 @@ class DecNode(object):
         self.var_nodes.append(var)
 
 class ProcNode(object):
-    def __init__(self, name, declist, ret, typevars, stmts):
-        #implement this
-        # also go back and implement all of the statements that are null. you may need them
-        # particularly typevars
-        pass
+    def __init__(self, name, declist, ret, typevars, stmts, lineno):
+        self.name = name
+        self.declist = declist
+        self.ret = ret
+        self.typevars = typevars
+        self.stmts = stmts
+        self.lineno = lineno
+
+class ArgNode(object):
+    def __init__(self, lineno):
+        self.arg_nodes = []
+
+    def append(self, node):
+        self.arg_nodes.append(node)
+
 
 class NullNode(object):
     def __init__(self):
-        self.type = None
+        self.type = ()
         self.val = None
         self.name = None
+
+    def is_null(self):
+        return True
+
+class CallNode(object):
+    def __init__(self, proc, args, lineno):
+        self.type = proc.ret
+        self.proc = proc
+        self.args = args
+        self.lineno = lineno
+        #if self.proc.stmts == None:
+            #raise TypeError(lineno, 'function declared but not implemented')
+        if len(proc.declist.var_nodes) != len(args.arg_nodes):
+            raise TypeError(lineno, 'wrong number of arguments for function call')
+        else:
+            for i in range(len(args.arg_nodes)):
+                if args.arg_nodes[i].type == proc.declist.var_nodes[i].type:
+                    pass
+                else:
+                    raise TypeError(lineno, 'Incorrect type for function call')

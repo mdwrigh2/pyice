@@ -1,0 +1,10 @@
+#:compile
+var g : int;
+proc f() : int
+  f := g;
+  g := g + 4;
+end
+g := 0;
+fa x := f() to f() ->
+  write x;
+af

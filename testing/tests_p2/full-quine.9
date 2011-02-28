@@ -1,0 +1,9 @@
+#:compile
+# This is a quine: a program that prints its own source code. Technically, this
+# isn't a true quine unless the comments and blank lines are removed.
+
+proc w(x,y:string)writes x;writes y;end proc f(a,b,c,d,e:string)w(b,a);w(e,c);w(a,b);w(a,c);w(a,c);w(a,c);w(e,d);w(e,c);w(a,e);write d;end f('"',"proc w(x,y:string)writes x;writes y;end proc f(a,b,c,d,e:string)w(b,a);w(e,c);w(a,b);w(a,c);w(a,c);w(a,c);w(e,d);w(e,c);w(a,e);write d;end f('",",",'");',"'");
+
+#    a   b     c   d     e
+# f('"',"f('",",",'");',"'");
+# b  aecab  acacaced  ecaed

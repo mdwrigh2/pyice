@@ -1,0 +1,26 @@
+#:compile
+
+proc collatzNext(x : int) : int
+  if x % 2 = 0 ->
+    collatzNext := x / 2;
+  [] else ->
+    collatzNext := 3 * x + 1;
+  fi
+end
+
+proc collatzLen(x : int) : int
+  collatzLen := 0;
+  do x > 1 ->
+    x := collatzNext(x);
+    collatzLen := collatzLen + 1;
+  od
+end
+
+var x : int;
+do true ->
+  x := read;
+  if x < 1 ->
+    return;
+  fi
+  write collatzLen(x);
+od

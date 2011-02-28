@@ -1,0 +1,8 @@
+#:error 6
+var x : int;
+x := 17;
+fa x := 34 - x to x + 3 ->
+  write x;
+  x := 0; # No assignment to fa-loop variable
+af
+write x;

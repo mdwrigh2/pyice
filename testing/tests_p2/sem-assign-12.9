@@ -1,0 +1,8 @@
+#:compile
+var x : int[2];
+x[0] := 1;
+x[1] := 0;
+x[x[1]] := x[x[0]];
+x[x[0] + 1] := x[0] + 1;
+x[?(false = false + true)] := 2;
+write x[0]; write x[1];

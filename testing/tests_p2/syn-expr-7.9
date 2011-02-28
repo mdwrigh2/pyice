@@ -1,0 +1,7 @@
+#:compile
+var x : int[2];
+x[0] := 17;
+x[1] := 11;
+# This is interesting...
+x[?(read > 0)] := 0;
+write x[0] + x[1];

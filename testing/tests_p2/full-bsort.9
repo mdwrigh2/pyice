@@ -1,0 +1,31 @@
+# bubble sort
+#:compile
+
+var n, t: int;
+var a: int[100];
+
+write "Input length of array (1-100):";
+n := read;
+if (n < 1) + (n > 100) -> write "wrong"; exit; fi
+
+n := n - 1;	# set n to last element
+
+fa i := 0 to n ->
+  writes "Input ";
+  writes i+1;
+  writes ": ";
+  a[i] := read;
+af
+
+fa i := 0 to n-1 ->
+  fa j := i+1 to n ->
+    if a[i] > a[j] ->
+      t := a[i];
+      a[i] := a[j];
+      a[j] := t;
+    fi
+  af
+af
+
+write "Sorted list:";
+fa i := 0 to n -> write a[i]; af

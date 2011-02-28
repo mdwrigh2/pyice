@@ -1,0 +1,15 @@
+#:compile
+var x : int;
+forward g(foo : int) : int;
+proc f() : int
+    f := g(x);
+end
+type Int = int;
+var y : Int;
+proc g(a : int) : Int
+    y := a;
+    g := x;
+end
+x := 7;
+write f();
+write f();

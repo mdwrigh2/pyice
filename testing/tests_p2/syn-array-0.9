@@ -1,0 +1,21 @@
+#:compile
+
+type int10 = int[10];
+
+proc sum(a : int10) : int
+    sum := 0;
+    fa i := 0 to 9 ->
+        sum := sum + a[i];
+    af
+end
+
+proc f() : int
+    type ten = int[10];
+    var a : ten;
+    fa i := 0 to 9 ->
+        a[i] = 17-i;
+    af
+    f := sum(a);
+end
+
+write f();

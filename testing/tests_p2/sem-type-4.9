@@ -1,0 +1,10 @@
+#:compile
+type t = int;
+type tt = t[3];
+type ttt = tt[4];
+type tttt = ttt[2];
+proc f(x : tttt)
+  x[1][1][1] := x[0][0][0];
+end
+var y : int[2][4][3];
+f(y);

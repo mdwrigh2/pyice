@@ -1,0 +1,40 @@
+#:compile
+var x : int, y : bool, z : string;
+proc f(x : int, y : bool, z : string) : int
+  f := x;
+end
+proc g(x : int, y : bool, z : string) : bool
+  g := y;
+end
+proc h(x : int, y : bool, z : string) : string
+  h := z;
+end
+x := x;
+y := y;
+z := z;
+x := 0;
+x := 8000;
+x := read;
+y := true;
+y := false;
+x := -x;
+y := -y;
+x := ?y;
+x := f(x, y, z);
+y := g(x, y, z);
+z := h(x, y, z);
+x := x + x;
+x := x - x;
+x := x * x;
+x := x / x;
+x := x % x;
+y := x = x;
+y := x != x;
+y := x > x;
+y := x < x;
+y := x >= x;
+y := x <= x;
+y := y + y;
+y := y * y;
+y := y = y;
+y := y != y;
