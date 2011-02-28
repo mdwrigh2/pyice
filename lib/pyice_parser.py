@@ -114,11 +114,11 @@ def p_statement_04(t):
 def p_statement_05(t):
     '''stm : WRITE exp SEMI
            | WRITES exp SEMI'''
-    t[0] = WriteNode(t[1], t[2], t.lineno(0))
+    t[0] = WriteNode(t[1], t[2], t.lineno(1))
 
 def p_statement_06(t):
     '''stm : lvalue ASSIGN exp SEMI'''
-    t[0] = AssignNode(t[1], t[3], t.lineno(0))
+    t[0] = AssignNode(t[1], t[3], t.lineno(2))
 
 
 def p_if_01(t):
@@ -163,31 +163,32 @@ def p_do(t):
     '''do : DO break_push exp ARROW OD'''
     t[0] = DoNode(t[3], NullNode(), t.lineno(1))
     breaks.dec()
-    variables.pop()
-    types.pop()
 
 def p_do_stmts(t):
     '''do : DO break_push exp ARROW stms OD'''
     t[0] = DoNode(t[3], t[4], t.lineno(1))
     breaks.dec()
+
+def p_fa(t):
+    '''fa : FA push_table fa_init ARROW AF'''
+    t[0] = ForNode(t[3][0], t[3][1], t[3][2], lineno = t.lineno(0))
+    breaks.dec()
     variables.pop()
     types.pop()
 
-def p_fa(t):
-    '''fa : FA push_table fa_init TO exp ARROW AF'''
-    t[0] = ForNode(t[3][0], t[3][1], t[5], lineno = t.lineno(0))
-
 def p_fa_initial(t):
-    '''fa_init : ID ASSIGN exp'''
-    var = VarNode(('int', []), t[1], t[3])
+    '''fa_init : ID ASSIGN exp TO exp'''
+    t[0] = [t[1], t[3], t[5]]
+    var = VarNode(('int', []), t[1], t[3], is_writeable = False)
     variables.insert(t[1], var)
-    t[0] = [t[1], t[3]]
     breaks.inc()
 
 def p_fa_stmts(t):
-    '''fa : FA push_table fa_init TO exp ARROW stms AF'''
-    t[0] = ForNode(t[3][0], t[3][1], t[5], t[7], t.lineno(0))
+    '''fa : FA push_table fa_init ARROW stms AF'''
+    t[0] = ForNode(t[3][0], t[3][1], t[3][2], t[5], t.lineno(0))
     breaks.dec()
+    variables.pop()
+    types.pop()
 
 def p_proc_05(t):
     '''proc : PROC push_table proc_center typevars END'''
@@ -195,46 +196,49 @@ def p_proc_05(t):
         type = ()
     else:
         try:
-            type = types.lookup(t[3][2])
-        except SymbolLookupError,e:
+            type = types.lookup_defaults(t[3][2])
+        except symbol_table.SymbolLookupError,e:
             raise TypeError(t.lineno(1),str(e))
     proc = ProcNode(t[3][0], t[3][1], type, t[4], NullNode(), t.lineno(1)) 
     try:
         functions.insert_func(t[3][0], proc)
-    except symbol_table.SymbolInsertionError,e:
+    except symbol_table.ProcInsertionError,e:
         raise TypeError(t.lineno(1), str(e))
+    variables.pop()
+    types.pop()
     t[0] = proc
 
 def p_proc_06(t):
     '''proc : PROC push_table proc_center typevars stms END'''
+    variables.pop()
+    types.pop()
     if isinstance(t[3][2], NullNode):
         type = ()
     else:
         try:
             type = types.lookup(t[3][2])
-        except SymbolLookupError,e:
+        except symbol_table.SymbolLookupError,e:
             raise TypeError(t.lineno(1),str(e))
     try:
         proc = ProcNode(t[3][0], t[3][1], type, t[4], t[5], t.lineno(1)) 
         functions.insert_func(t[3][0], proc)
-    except symbol_table.SymbolInsertionError,e:
+    except symbol_table.ProcInsertionError,e:
         raise TypeError(t.lineno(1), str(e))
     t[0] = proc
 
 
 def p_proc_no_ret(t):
     '''proc_center : ID LPAREN declist RPAREN'''
-    proc = ProcNode(t[1], t[3], NullNode(), None, None, t.lineno(1))
+    proc = ProcNode(t[1], t[3], (), None, None, t.lineno(1))
     try:
         functions.insert_func(t[1], proc)
-    except symbol_table.SymbolInsertionError,e:
+    except symbol_table.ProcInsertionError,e:
         raise TypeError(t.lineno(1), str(e))
     t[0] = [t[1], t[3], NullNode()]
 
 def p_proc_ret(t):
     '''proc_center : ID LPAREN declist RPAREN COLON typeid'''
     type = types.lookup(t[6])
-    # typevars and stms are NullNodes rather than None for recursive calling
     proc = ProcNode(t[1], t[3], type, None, None, t.lineno(1))
     try:
         functions.insert_func(t[1], proc)
@@ -299,8 +303,8 @@ def p_arrays_expansion(t):
     t[0] = tmp
 
 def p_forward(t):
-    '''forward : FORWARD push_table ID LPAREN declist RPAREN SEMI'''
-    proc = ProcNode(t[3], t[5], NullNode(), None, None, t.lineno(1))
+    '''forward : FORWARD push_table ID LPAREN declist_forward RPAREN SEMI'''
+    proc = ProcNode(t[3], t[5], (), None, None, t.lineno(1))
     try:
         functions.insert_forward(t[3], proc)
     except symbol_table.SymbolInsertionError,e:
@@ -310,15 +314,16 @@ def p_forward(t):
     types.pop()
 
 def p_forward_return_type(t):
-    '''forward : FORWARD push_table ID LPAREN declist RPAREN COLON typeid SEMI'''
-    proc = ProcNode(t[3], t[5], t[8], None, None, t.lineno(1))
+    '''forward : FORWARD push_table ID LPAREN declist_forward RPAREN COLON typeid SEMI'''
+    variables.pop()
+    types.pop()
+    type = types.lookup_defaults(t[8])
+    proc = ProcNode(t[3], t[5], type, None, None, t.lineno(1))
     try:
         functions.insert_forward(t[3], proc)
     except symbol_table.SymbolInsertionError,e:
         raise TypeError(t.lineno(1), str(e))
     t[0] = proc
-    variables.pop()
-    types.pop()
 
 
 def p_exp_array(t):
@@ -366,7 +371,7 @@ def p_expression_02(t):
 def p_expression_array(t):
     ''' exp : ID exparray'''
     tmp = variables.lookup(t[1])
-    t[0] = ArrayNode(tmp, t[2], t.lineno(0))
+    t[0] = ArrayNode(tmp, t[2], t.lineno(1))
 
 
 
@@ -381,7 +386,7 @@ def p_procedure_call_expression(t):
         proc = functions.lookup(t[1])
     except symbol_table.SymbolLookupError,e:
         raise TypeError(t.lineno(1), str(e))
-    t[0] = CallNode(proc, ArgNode(t.lineno(0)), t.lineno(0))
+    t[0] = CallNode(proc, ArgNode(t.lineno(1)), t.lineno(1))
 
 def p_procedure_call_with_args_expression(t):
     '''exp : ID LPAREN argument_list RPAREN'''
@@ -393,7 +398,7 @@ def p_procedure_call_with_args_expression(t):
 
 def p_argument_list(t):
     ''' argument_list : exp '''
-    args = ArgNode(t.lineno(0))
+    args = ArgNode(t.lineno(1))
     args.append(t[1])
     t[0] = args
 
@@ -457,7 +462,7 @@ def p_declist_empty(t):
 
 def p_declistx(t):
     '''declistx : idlist COLON typeid'''
-    dec = DecNode(t.lineno(0))
+    dec = DecNode(t.lineno(3))
     for i in t[1]:
         var = VarNode(types.lookup(t[3]),i)
         variables.insert(i, var)
@@ -473,10 +478,40 @@ def p_declistx_extension(t):
         var = VarNode(types.lookup(t[3]),i)
         variables.insert(i, var)
         dec.append(var)
+    t[0] = dec
+
+def p_declist_forward(t):
+    '''declist_forward : declistx_forward'''
+    t[0] = t[1]
+
+def p_declist_forward_empty(t):
+    '''declist_forward : empty'''
+    t[0] = DecNode(t.lineno(1))
+
+def p_declistx_forward(t):
+    '''declistx_forward : idlist COLON typeid'''
+    dec = DecNode(t.lineno(3))
+    for i in t[1]:
+        var = VarNode(types.lookup(t[3]),i)
+        dec.append(var)
+
+    t[0] = dec
+
+
+def p_declistx_forward_extension(t):
+    '''declistx_forward : idlist COLON typeid COMMA declistx_forward'''
+    dec = t[5]
+    for i in t[1]:
+        var = VarNode(types.lookup(t[3]),i)
+        dec.append(var)
+    t[0] = dec
 
 def p_type(t):
     ''' type : TYPE ID EQ typeid SEMI'''
-    types.insert(t[2], types.lookup(t[4]))
+    try:
+        types.insert(t[2], types.lookup(t[4]))
+    except symbol_table.SymbolInsertionError,e:
+        raise TypeError(t.lineno(1), str(e))
 
 def p_type_arrays(t):
     ''' type : TYPE ID EQ typeid intarrays SEMI'''

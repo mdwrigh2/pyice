@@ -109,14 +109,12 @@ class WriteNode(object):
         else:
             raise TypeError(lineno, op)
 
-class AssignNode(object):
-    pass
-
 class ArrayNode(object):
     def __init__(self, var, indices, lineno):
+        self.is_writeable = True
         if len(var.type[1]) >= len(indices):
             self.var = var
-            tmp = var.type[1]
+            tmp = var.type[1][:]
             for i in indices:
                 tmp.pop(0)
             self.type = (var.type[0], tmp)
@@ -124,10 +122,11 @@ class ArrayNode(object):
             raise TypeError(lineno, var.name)
 
 class VarNode(object):
-    def __init__(self, type, name=None, val=None):
+    def __init__(self, type, name=None, val=None, is_writeable = True):
         self.type = type
         self.val = val
         self.name = name
+        self.is_writeable = is_writeable
 
 class ReturnNode(object):
     pass
@@ -140,10 +139,17 @@ class ExitNode(object):
 
 class AssignNode(object):
     def __init__(self, lnode, rnode, lineno):
+        self.lnode = lnode
+        self.rnode = rnode
+        self.lineno = lineno
+        if len(lnode.type[1]) > 0:
+            raise TypeError(lineno, 'cannot assign to array types')
         if lnode.type == rnode.type:
-            pass
+            if not self.lnode.is_writeable:
+                raise TypeError(lineno, 'variable is not writable')
         else:
             raise TypeError(lineno, lnode.name)
+
 
 class IfNode(object):
     def __init__(self, cond, then, elifs=None, els=None, lineno=0):
@@ -184,8 +190,22 @@ class DecNode(object):
     def append(self, var):
         self.var_nodes.append(var)
 
+    def __eq__(self, other):
+        if len(self.var_nodes) != len(other.var_nodes):
+            return False
+        else:
+            for i in range(len(self.var_nodes)):
+                if self.var_nodes[i].type != other.var_nodes[i].type:
+                    return False
+        return True
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
 class ProcNode(object):
     def __init__(self, name, declist, ret, typevars, stmts, lineno):
+        if not (ret == ('int', []) or ret == ('bool', []) or ret == ('string', []) or ret == ()):
+            raise TypeError(lineno, 'proc %s does not return a basic type (int, bool, string).' % name)
         self.name = name
         self.declist = declist
         self.ret = ret

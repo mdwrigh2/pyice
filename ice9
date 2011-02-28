@@ -8,6 +8,7 @@ import sys
 
 from lib.pyice_parser import ParseError
 from lib.pyice_lexer import LexError
+from lib.nodes import TypeError
 
 import sys
 
@@ -16,6 +17,10 @@ class Compiler:
     def _parse(self, code):
         try:
             self.ast = yacc.parse(code)
+            # Finished compiling, make sure all functions have definitions
+            for func in lib.pyice_parser.functions.values():
+                if not func.stmts:
+                    raise TypeError(-1, "function declared but not implemented")
         except ParseError, p:
             print >> sys.stderr, "line %d: syntax error near %s" % (p.lineno, p.token)
             sys.exit(1)
