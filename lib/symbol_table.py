@@ -1,7 +1,7 @@
 class SymbolTable():
     def __init__(self, default=None):
         if default == None:
-            default = []
+            default = {}
         self.symbol_tables = [default]
 
     def lookup(self, var):
