@@ -63,12 +63,14 @@ def p_statement_04(t):
     '''stm : SEMI'''
 
 def p_statement_05(t):
-    '''stm : WRITE exp SEMI'''
+    '''stm : WRITE exp SEMI
+           | WRITES exp SEMI'''
+    t[0] = WriteNode(t[1], t[2], t.lineno(0))
 
 def p_statement_06(t):
     '''stm : lvalue ASSIGN exp SEMI'''
 
-#Need to add the { '[]' exp '->' stms }
+
 def p_if_01(t):
     '''if : IF exp ARROW stms FI
           | IF exp ARROW stms ifboxes FI'''
@@ -139,13 +141,20 @@ def p_exp_array(t):
                   | LBRACK exp RBRACK exparray '''
 
 def p_expression_int(t):
-    '''exp : INT
-           | TRUE
-           | FALSE
-           | STRING
-           | READ'''
-    t[0] = LitNode(t[1], ('int', []))
+    '''exp : INT '''
+    t[0] = LitNode(t[1], ('int', []), t.lineno(0))
 
+def p_expression_bool(t):
+    ''' exp : TRUE
+            | FALSE '''
+    t[0] = LitNode(t[1], ('bool', []), t.lineno(0))
+
+def p_expression_string(t):
+    ''' exp : STRING'''
+    t[0] = LitNode(t[1], ('string', []), t.lineno(0))
+
+def p_expression_read(t):
+    t[0] = ReadNode(t.lineno(0))
 
 
 def p_expression_02(t):
@@ -158,7 +167,7 @@ def p_expression_array(t):
 def p_unary_expression(t):
     ''' exp : MINUS exp %prec UMINUS
             | QUEST exp'''
-    t[0] = UnaryOpNode(t[1], t[2])
+    t[0] = UnaryOpNode(t[1], t[2], t.lineno(0))
 
 def p_procedure_call_expression(t):
     ''' exp : ID LPAREN RPAREN
@@ -181,12 +190,13 @@ def p_binary_expression(t):
             | exp LT exp
             | exp GE exp
             | exp LE exp'''
-    t[0] = BinOpNode(t[2], t[1], t[3])
+    t[0] = BinOpNode(t[2], t[1], t[3], t.lineno(0))
     
 
 def p_expression_write(t):
     ''' exp : WRITE exp
             | WRITES exp'''
+    t[0] = WriteNode(t[1], t[2], t.lineno(0))
 
 
 def p_expression_parens(t):
@@ -194,8 +204,11 @@ def p_expression_parens(t):
     t[0] = t[1]
 
 def p_lvalue(t):
-    ''' lvalue : ID
-               | ID exparray'''
+    ''' lvalue : ID '''
+
+
+def p_lvalue_arr(t):
+    ''' lvalue : ID exparray'''
 
 def p_typeid(t):
     ''' typeid : ID''' # just for semantics
