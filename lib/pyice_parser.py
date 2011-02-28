@@ -5,12 +5,15 @@ import symbol_table
 
 import sys
 
+from nodes import *
+
 class ParseError(Exception):
     def __init__(self, lineno, token):
         self.lineno = lineno
         self.token = token
     def __str__(self):
         return repr(self.token)
+
 
 tokens = pyice_lexer.tokens
 
@@ -26,7 +29,7 @@ start = 'program'
 
 variables = symbol_table.SymbolTable()
 functions = symbol_table.SymbolTable()
-types     = symbol_table.SymbolTable()
+types     = symbol_table.SymbolTable({'int': ('int', []), 'bool': ('bool',[]), 'string': ('string', [])})
 
 def p_program(t):
     ''' program : begins
@@ -135,13 +138,15 @@ def p_exp_array(t):
     ''' exparray : LBRACK exp RBRACK
                   | LBRACK exp RBRACK exparray '''
 
-def p_expression(t):
+def p_expression_int(t):
     '''exp : INT
            | TRUE
            | FALSE
            | STRING
            | READ'''
-    #t[0] = t[1]
+    t[0] = LitNode(t[1], ('int', []))
+
+
 
 def p_expression_02(t):
     ''' exp : ID'''
@@ -153,13 +158,7 @@ def p_expression_array(t):
 def p_unary_expression(t):
     ''' exp : MINUS exp %prec UMINUS
             | QUEST exp'''
-    if t[1] == '-':
-        t[0] = -t[2]
-    else:
-        if t[2]:
-            t[0] = 1
-        else:
-            t[0] = 0
+    t[0] = UnaryOpNode(t[1], t[2])
 
 def p_procedure_call_expression(t):
     ''' exp : ID LPAREN RPAREN
@@ -182,6 +181,8 @@ def p_binary_expression(t):
             | exp LT exp
             | exp GE exp
             | exp LE exp'''
+    t[0] = BinOpNode(t[2], t[1], t[3])
+    
 
 def p_expression_write(t):
     ''' exp : WRITE exp
@@ -190,6 +191,7 @@ def p_expression_write(t):
 
 def p_expression_parens(t):
     ''' exp : LPAREN exp RPAREN'''
+    t[0] = t[1]
 
 def p_lvalue(t):
     ''' lvalue : ID
@@ -217,9 +219,13 @@ def p_empty(t):
 
 def p_push_table(t):
     '''push_table :'''
+    variables.push()
+    variables.push()
 
 def p_pop_table(t):
     '''pop_table :'''
+    variables.pop()
+    types.pop()
 
 def p_error(t):
     raise ParseError(t.lineno, t.value)

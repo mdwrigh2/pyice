@@ -1,6 +1,8 @@
 class SymbolTable():
-    def __init__(self):
-        self.symbol_tables = [{}]
+    def __init__(self, default=None):
+        if default == None:
+            default = []
+        self.symbol_tables = [default]
 
     def lookup(self, var):
         for table in reversed(self.symbol_tables):
