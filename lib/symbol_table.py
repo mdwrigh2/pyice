@@ -60,7 +60,7 @@ class SymbolTable(object):
 
     def insert_forward(self, var, node):
         if self.lookup_top(var):
-            raise SymbolInsertionError(var)
+            raise SymbolInsertionError('function already declared: %s' % var)
         else:
             self.symbol_tables[-1][var] = node
 

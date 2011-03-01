@@ -29,6 +29,7 @@ class Compiler:
             sys.exit(1)
         except TypeError, t:
             print >> sys.stderr, str(t)
+            sys.exit(1)
 
     def compile_file(self, filename):
         source = open(filename, 'r')
