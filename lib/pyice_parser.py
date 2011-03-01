@@ -123,16 +123,16 @@ def p_statement_06(t):
 
 def p_if_01(t):
     '''if : IF exp ARROW stms FI'''
-    t[0] = IfNode(t[2], t[4], lineno = t.lineno(0))
+    t[0] = IfNode(t[2], t[4], lineno = t.lineno(1))
 
 def p_if_with_boxes(t):
     '''if : IF exp ARROW stms ifboxes FI'''
-    t[0] = IfNode(t[2],t[4], t[5], lineno = t.lineno(0))
+    t[0] = IfNode(t[2],t[4], t[5], lineno = t.lineno(1))
 
 
 def p_ifboxes(t):
     '''ifboxes : BOX exp ARROW stms ifboxes'''
-    tmp = [IfNode(t[2],t[4], lineno = t.lineno(0))]
+    tmp = [IfNode(t[2],t[4], lineno = t.lineno(1))]
     tmp.extend(t[5])
     t[0] = tmp
                
@@ -144,7 +144,7 @@ def p_if_02(t):
     '''if : IF exp ARROW stms select'''
     tmp_select = t[5]
     tmp = tmp_select.pop()
-    t[0] = IfNode(t[2], t[4], tmp_select, tmp, t.lineno(0))
+    t[0] = IfNode(t[2], t[4], tmp_select, tmp, t.lineno(1))
 
 
 def p_select(t):
@@ -171,7 +171,7 @@ def p_do_stmts(t):
 
 def p_fa(t):
     '''fa : FA push_table fa_init ARROW AF'''
-    t[0] = ForNode(t[3][0], t[3][1], t[3][2], lineno = t.lineno(0))
+    t[0] = ForNode(t[3][0], t[3][1], t[3][2], lineno = t.lineno(1))
     breaks.dec()
     variables.pop()
     types.pop()
@@ -188,7 +188,7 @@ def p_fa_initial(t):
 
 def p_fa_stmts(t):
     '''fa : FA push_table fa_init ARROW stms AF'''
-    t[0] = ForNode(t[3][0], t[3][1], t[3][2], t[5], t.lineno(0))
+    t[0] = ForNode(t[3][0], t[3][1], t[3][2], t[5], t.lineno(1))
     breaks.dec()
     variables.pop()
     types.pop()
@@ -353,7 +353,7 @@ def p_exp_array(t):
         t[0] = [1]
         # I'm ignoring the expressions values for now
     else:
-        raise TypeError(t.lineno(0), 'array indices must be integers')
+        raise TypeError(t.lineno(1), 'array indices must be integers')
 
 def p_exp_array_expansion(t):
     ''' exparray : LBRACK exp RBRACK exparray '''
@@ -363,7 +363,7 @@ def p_exp_array_expansion(t):
         t[0] = tmp
         # I'm ignoring the expressions values for now
     else:
-        raise TypeError(t.lineno(0), 'array indices must be integers')
+        raise TypeError(t.lineno(1), 'array indices must be integers')
 
 
 def p_expression_int(t):
@@ -377,7 +377,7 @@ def p_expression_bool(t):
 
 def p_expression_string(t):
     ''' exp : STRING'''
-    t[0] = LitNode(t[1], ('string', []), t.lineno(0))
+    t[0] = LitNode(t[1], ('string', []), t.lineno(1))
 
 def p_expression_read(t):
     ''' exp : READ'''
@@ -421,7 +421,7 @@ def p_procedure_call_with_args_expression(t):
         proc = functions.lookup(t[1])
     except symbol_table.SymbolLookupError,e:
         raise TypeError(t.lineno(1), 'function has not been declared: %s' % t[1])
-    t[0] = CallNode(proc, t[3], t.lineno(0))
+    t[0] = CallNode(proc, t[3], t.lineno(1))
 
 def p_argument_list(t):
     ''' argument_list : exp '''
@@ -477,7 +477,7 @@ def p_lvalue_arr(t):
         var = variables.lookup(t[1])
     except SymbolLookupError,e:
         raise TypeError(t.lineno(1), "variable was not declared: %s" % t[1])
-    t[0] = ArrayNode(var, t[2], t.lineno(0))
+    t[0] = ArrayNode(var, t[2], t.lineno(1))
 
 def p_typeid(t):
     ''' typeid : ID''' # just for semantics
@@ -489,7 +489,7 @@ def p_declist(t):
 
 def p_declist_empty(t):
     '''declist : empty'''
-    t[0] = DecNode(t.lineno(0))
+    t[0] = DecNode(t.lineno(1))
 
 def p_declistx(t):
     '''declistx : idlist COLON typeid'''
@@ -595,4 +595,4 @@ def p_error(t):
     else:
         raise ParseError(t.lineno, t.value)
 
-yacc.yacc(debug=1)
+yacc.yacc(debug=0)

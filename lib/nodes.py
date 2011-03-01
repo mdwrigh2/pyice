@@ -3,7 +3,7 @@ class TypeError(Exception):
         self.lineno = lineno
         self.message = message
     def __str__(self):
-        return "line %d: %s" % (self.lineno, repr(self.message))
+        return "line %d: %s" % (self.lineno, self.message)
 
 class LitNode(object):
     def __init__(self, val, type, lineno):
