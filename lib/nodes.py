@@ -23,13 +23,13 @@ class BinOpNode(object):
             elif lnode.type == ('int',[]) and rnode.type == ('int',[]):
                 self.type = ('int',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '-':
             if lnode.type == ('int',[]) and rnode.type == ('int',[]):
                 self.type = ('int',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '*':
             if lnode.type == ('int',[]) and rnode.type == ('int',[]):
@@ -38,54 +38,54 @@ class BinOpNode(object):
                 # Boolean and
                 self.type = ('bool',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '/':
             if lnode.type == ('int',[]) and rnode.type == ('int',[]):
                 self.type = ('int',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '%':
             if lnode.type == ('int',[]) and rnode.type == ('int',[]):
                 self.type = ('int',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '=':
             if (lnode.type == ('int',[]) and rnode.type == ('int',[])) or (lnode.type == ('bool',[]) and rnode.type == ('bool',[])):
                 self.type = ('bool',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '!=':
             if (lnode.type == ('int',[]) and rnode.type == ('int',[])) or (lnode.type == ('bool',[]) and rnode.type == ('bool',[])):
                 self.type = ('bool',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '>':
             if (lnode.type == ('int',[]) and rnode.type == ('int',[])):
                 self.type = ('bool',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '<':
             if (lnode.type == ('int',[]) and rnode.type == ('int',[])):
                 self.type = ('bool',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
         if op == '>=':
             if (lnode.type == ('int',[]) and rnode.type == ('int',[])):
                 self.type = ('bool',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
         if op == '<=':
             if (lnode.type == ('int',[]) and rnode.type == ('int',[])):
                 self.type = ('bool',[])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to binary operator')
 
 class UnaryOpNode(object):
     def __init__(self, op, child, lineno):
@@ -95,19 +95,19 @@ class UnaryOpNode(object):
             elif child.type == ('bool', []):
                 self.type = ('bool', [])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to unary operator')
         elif op == '?':
             if child.type == ('bool', []):
                 self.type = ('int', [])
             else:
-                raise TypeError(lineno, op)
+                raise TypeError(lineno, 'incompatible types to unary operator')
 
 class WriteNode(object):
     def __init__(self, op, child, lineno):
         if child.type == ('int', []) or child.type == ('string', []):
             self.type = None
         else:
-            raise TypeError(lineno, op)
+            raise TypeError(lineno, 'incompatible type on write operation')
 
 class ArrayNode(object):
     def __init__(self, var, indices, lineno):
@@ -119,7 +119,7 @@ class ArrayNode(object):
                 tmp.pop(0)
             self.type = (var.type[0], tmp)
         else:
-            raise TypeError(lineno, var.name)
+            raise TypeError(lineno, 'attempted to access non-array object as array')
 
 class VarNode(object):
     def __init__(self, type, name=None, val=None, is_writeable = True):

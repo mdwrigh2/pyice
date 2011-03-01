@@ -27,6 +27,8 @@ class Compiler:
         except LexError, l:
             print >> sys.stderr, "line %d: illegal character %s" % (l.lineno, l.token)
             sys.exit(1)
+        except TypeError, t:
+            print >> sys.stderr, str(t)
 
     def compile_file(self, filename):
         source = open(filename, 'r')
