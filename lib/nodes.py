@@ -110,7 +110,8 @@ class WriteNode(object):
             raise TypeError(lineno, 'incompatible type on write operation')
 
 class ArrayNode(object):
-    def __init__(self, var, indices, lineno):
+    def __init__(self, var, indices, name, lineno):
+        self.name = name
         self.is_writeable = True
         if len(var.type[1]) >= len(indices):
             self.var = var

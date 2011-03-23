@@ -9,6 +9,7 @@ import sys
 from lib.pyice_parser import ParseError
 from lib.pyice_lexer import LexError
 from lib.nodes import TypeError
+from lib.symbol_table import ProcInsertionError
 
 import sys
 
@@ -23,13 +24,17 @@ class Compiler:
                     raise TypeError(-1, "function declared but not implemented")
         except ParseError, p:
             print >> sys.stderr, "line %d: syntax error near %s" % (p.lineno, p.token)
-            sys.exit(1)
+            sys.exit(100)
         except LexError, l:
             print >> sys.stderr, "line %d: illegal character %s" % (l.lineno, l.token)
-            sys.exit(1)
+            sys.exit(100)
         except TypeError, t:
             print >> sys.stderr, str(t)
-            sys.exit(1)
+            sys.exit(100)
+        except ProcInsertionError, e:
+            print >> sys.stderr, str(e)
+            sys.exit(100)
+
 
     def compile_file(self, filename):
         source = open(filename, 'r')

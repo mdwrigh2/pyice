@@ -26,7 +26,7 @@ for fn in os.listdir(file_dir):
                 test_result(retprocess == 0, fn)
             if line.startswith('#:error'):
                 retprocess = subprocess.call(['../ice9', file_dir+'/'+fn], stdout = PIPE, stderr = STDOUT)
-                test_result(retprocess != 0, fn)
+                test_result(retprocess == 100, fn)
 sys.stdout.write('\n\n')
 if fails:
     print "\033[91mThe following tests failed:"

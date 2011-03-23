@@ -1,34 +1,35 @@
 class SymbolTable(object):
-    def __init__(self, default=None):
+    def __init__(self, name, default=None):
         if default == None:
             default = [{}]
         self.symbol_tables = default
+        self.name = name
 
-    def lookup(self, var):
+    def lookup(self, var, line):
         for table in reversed(self.symbol_tables):
             if var in table:
                 return table[var]
 
-        raise SymbolLookupError(var)
+        raise SymbolLookupError(var,self.name,line)
 
-    def lookup_top(self, var):
+    def lookup_top(self, var, line):
         table = self.symbol_tables[-1]
-        return table.get(var, None)
+        return table.get(var, None, line)
 
-    def lookup_not_top(self, var):
+    def lookup_not_top(self, var, line):
         tables = self.symbol_tables[0:-1]
         for table in reversed(tables):
             type = table.get(var, None)
             if not type:
-                raise SymbolLookupError(var)
+                raise SymbolLookupError(var, self.name, line)
             else:
                 return type
     
-    def lookup_defaults(self,var):
+    def lookup_defaults(self,var, line):
         table = self.symbol_tables[0]
         type = table.get(var, None)
         if not type:
-            raise SymbolLookupError(var)
+            raise SymbolLookupError(var, self.name, line)
         else:
             return type
 
@@ -39,28 +40,8 @@ class SymbolTable(object):
         self.symbol_tables.pop()
 
     def insert(self, var, node):
-        if self.lookup_top(var):
-            raise SymbolInsertionError(var)
-        else:
-            self.symbol_tables[-1][var] = node
-
-    def insert_func(self, var, node):
-        prev_node = self.lookup_top(var)
-        if prev_node:
-            if prev_node.stmts:
-                raise ProcInsertionError("proc %s already defined" % var)
-            elif prev_node.declist != node.declist:
-                raise ProcInsertionError("Proc parameters does not agree with forward definition")
-            elif prev_node.ret != node.ret:
-                raise ProcInsertionError("Proc return values do not agree with forward definition")
-            else:
-                self.symbol_tables[-1][var] = node
-        else:
-            self.symbol_tables[-1][var] = node
-
-    def insert_forward(self, var, node):
-        if self.lookup_top(var):
-            raise SymbolInsertionError('function already declared: %s' % var)
+        if self.lookup_top(var, line):
+            raise SymbolInsertionError(var, self.name, line)
         else:
             self.symbol_tables[-1][var] = node
 
@@ -76,24 +57,53 @@ class SymbolTable(object):
 
         return vals
 
+class FunctionTable(SymbolTable):
+    def __init__(self, default=None):
+        if default == None:
+            default = [{}]
+        self.symbol_tables = default
+    def insert(self, var, node, line):
+        prev_node = self.lookup_top(var, line)
+        if prev_node:
+            if prev_node.stmts:
+                raise ProcInsertionError("Proc %s already defined", line)
+            elif prev_node.declist != node.declist:
+                raise ProcInsertionError("Proc parameters does not agree with forward definition", line)
+            elif prev_node.ret != node.ret:
+                raise ProcInsertionError("Proc return values do not agree with forward definition", line)
+            else:
+                self.symbol_tables[-1][var] = node
+        else:
+            self.symbol_tables[-1][var] = node
+
+    def insert_forward(self, var, node, line):
+        if self.lookup_top(var, line):
+            raise ProcInsertionError('function already declared: %s' % var, line)
+        else:
+            self.symbol_tables[-1][var] = node
 
 class SymbolLookupError(Exception):
-    def __init__(self,value):
+    def __init__(self,value, name, line):
         self.value = value
+        self.line = line
+        self.name = name
 
     def __str__(self):
-        return "Symbol not found in symbol table: %s"  % self.value
+        return "line %d: %s not found in symbol table: %s"  % (self.line, self.name, self.value)
 
 class SymbolInsertionError(Exception):
-    def __init__(self, value):
+    def __init__(self, value, name, line):
         self.value = value
+        self.line = line
+        self.name = name
 
     def __str__(self):
-        return "Symbol already found in top scope: %s"  % self.value
+        return "line %d: %s already found in top scope: %s"  % (self.line, self.name, self.value)
 
 class ProcInsertionError(SymbolInsertionError):
-    def __init__(self, message):
+    def __init__(self, message, line):
         self.message = message
+        self.line = line
 
     def __str__(self):
-        return self.message
+        return "line %d: %s" % (self.line, self.message)
