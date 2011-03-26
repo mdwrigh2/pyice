@@ -9,7 +9,7 @@ import sys
 from lib.pyice_parser import ParseError
 from lib.pyice_lexer import LexError
 from lib.nodes import TypeError
-from lib.symbol_table import ProcInsertionError
+from lib.symbol_table import ProcInsertionError, SymbolLookupError, SymbolInsertionError
 
 import sys
 
@@ -32,6 +32,12 @@ class Compiler:
             print >> sys.stderr, str(t)
             sys.exit(100)
         except ProcInsertionError, e:
+            print >> sys.stderr, str(e)
+            sys.exit(100)
+        except SymbolLookupError, e:
+            print >> sys.stderr, str(e)
+            sys.exit(100)
+        except SymbolInsertionError, e:
             print >> sys.stderr, str(e)
             sys.exit(100)
 

@@ -14,7 +14,7 @@ class SymbolTable(object):
 
     def lookup_top(self, var, line):
         table = self.symbol_tables[-1]
-        return table.get(var, None, line)
+        return table.get(var, None)
 
     def lookup_not_top(self, var, line):
         tables = self.symbol_tables[0:-1]
@@ -39,7 +39,7 @@ class SymbolTable(object):
     def pop(self):
         self.symbol_tables.pop()
 
-    def insert(self, var, node):
+    def insert(self, var, node, line):
         if self.lookup_top(var, line):
             raise SymbolInsertionError(var, self.name, line)
         else:
@@ -62,6 +62,7 @@ class FunctionTable(SymbolTable):
         if default == None:
             default = [{}]
         self.symbol_tables = default
+        self.name = "Proc"
     def insert(self, var, node, line):
         prev_node = self.lookup_top(var, line)
         if prev_node:

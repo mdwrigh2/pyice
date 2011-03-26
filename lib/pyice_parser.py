@@ -90,17 +90,16 @@ def p_statement_break(t):
     if not breaks.can_break():
         raise TypeError(t.lineno(1), 'break statement outside of appropriate loop')
     else:
-        #break_stmt -= 1
         pass
-    BreakNode()
+    t[0] = BreakNode()
 
 def p_statement_exit(t):
     '''stm : EXIT SEMI'''
-    ExitNode()
+    t[0] = ExitNode()
 
 def p_statement_02(t):
     '''stm : RETURN SEMI'''
-    ReturnNode()
+    t[0] = ReturnNode()
 
 def p_statement_03(t):
     '''stm : exp SEMI'''
@@ -180,10 +179,7 @@ def p_fa_initial(t):
     '''fa_init : ID ASSIGN exp TO exp'''
     t[0] = [t[1], t[3], t[5]]
     var = VarNode(('int', []), t[1], t[3], is_writeable = False)
-    try:
-        variables.insert(t[1], var)
-    except symbol_table.SymbolInsertionError,e:
-        raise TypeError(t.lineno(1), 'unable to create fa loop variable')
+    variables.insert(t[1], var, t.lineno(1))
     breaks.inc()
 
 def p_fa_stmts(t):
@@ -198,12 +194,9 @@ def p_proc_05(t):
     if isinstance(t[3][2], NullNode):
         type = ()
     else:
-        try:
-            type = types.lookup_defaults(t[3][2])
-        except symbol_table.SymbolLookupError,e:
-            raise TypeError(t.lineno(1), "type does not exist: %s" % t[3][2])
+        type = types.lookup_defaults(t[3][2], t.lineno(1))
     proc = ProcNode(t[3][0], t[3][1], type, t[4], NullNode(), t.lineno(1)) 
-    functions.insert(t[3][0], proc)
+    functions.insert(t[3][0], proc, t.lineno(1))
     variables.pop()
     types.pop()
     t[0] = proc
@@ -215,33 +208,24 @@ def p_proc_06(t):
     if isinstance(t[3][2], NullNode):
         type = ()
     else:
-        try:
-            type = types.lookup(t[3][2])
-        except symbol_table.SymbolLookupError,e:
-            raise TypeError(t.lineno(1),"type does not exist: %s" % t[3][2])
+        type = types.lookup(t[3][2], t.lineno(1))
     proc = ProcNode(t[3][0], t[3][1], type, t[4], t[5], t.lineno(1)) 
-    functions.insert(t[3][0], proc)
+    functions.insert(t[3][0], proc, t.lineno(1))
     t[0] = proc
 
 
 def p_proc_no_ret(t):
     '''proc_center : ID LPAREN declist RPAREN'''
     proc = ProcNode(t[1], t[3], (), None, None, t.lineno(1))
-    functions.insert(t[1], proc)
+    functions.insert(t[1], proc, t.lineno(1))
     t[0] = [t[1], t[3], NullNode()]
 
 def p_proc_ret(t):
     '''proc_center : ID LPAREN declist RPAREN COLON typeid'''
-    try:
-        type = types.lookup(t[6])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(1), "type not declared: %s" % t[6])
+    type = types.lookup(t[6], t.lineno(1))
     proc = ProcNode(t[1], t[3], type, None, None, t.lineno(1))
-    functions.insert(t[1], proc)
-    try:
-        variables.insert(t[1], VarNode(type, t[1]))
-    except symbol_table.SymbolInsertionError,e:
-        raise TypeError(t.lineno(1), "variable already exists in scope: %s" % t[1])
+    functions.insert(t[1], proc, t.lineno(1))
+    variables.insert(t[1], VarNode(type, t[1]), t.lineno(1))
     t[0] = [t[1], t[3], t[6]]
 
 
@@ -270,32 +254,20 @@ def p_var(t):
 def p_varlist(t):
     '''varlist : idlist COLON typeid
                | idlist COLON typeid COMMA varlist'''
-    try:
-        type = types.lookup(t[3])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(2), "type not declared: %s" % t[3])
+    type = types.lookup(t[3], t.lineno(2))
     for var in t[1]:
-        try:
-            variables.insert(var, VarNode(type, var))
-        except symbol_table.SymbolInsertionError,e:
-            raise TypeError(t.lineno(2), "variable already declared in scope: %s" % var)
+        variables.insert(var, VarNode(type, var), t.lineno(2))
     
 
 def p_varlist_arrays(t):
     ''' varlist : idlist COLON typeid intarrays
                 | idlist COLON typeid intarrays COMMA varlist'''
-    try:
-        type = types.lookup(t[3])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(2), "base type not declared: %s" % t[3])
+    type = types.lookup(t[3], t.lineno(2))
     tmp = t[4]
     tmp.extend(type[1])
     new_type = (type[0], tmp)
     for var in t[1]:
-        try:
-            variables.insert(var, VarNode(new_type))
-        except symbol_table.SymbolInsertionError, e:
-            raise TypeError(t.lineno(2), "variable already declared in this scope: %s" % var)
+        variables.insert(var, VarNode(new_type), t.lineno(2))
 
 
 def p_arrays(t):
@@ -311,10 +283,7 @@ def p_arrays_expansion(t):
 def p_forward(t):
     '''forward : FORWARD push_table ID LPAREN declist_forward RPAREN SEMI'''
     proc = ProcNode(t[3], t[5], (), None, None, t.lineno(1))
-    try:
-        functions.insert_forward(t[3], proc)
-    except symbol_table.SymbolInsertionError,e:
-        raise TypeError(t.lineno(1), str(e))
+    functions.insert_forward(t[3], proc, t.lineno(1))
     t[0] = proc
     variables.pop()
     types.pop()
@@ -323,15 +292,9 @@ def p_forward_return_type(t):
     '''forward : FORWARD push_table ID LPAREN declist_forward RPAREN COLON typeid SEMI'''
     variables.pop()
     types.pop()
-    try:
-        type = types.lookup_defaults(t[8])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(1), "type not declared: %s" % t[8])
+    type = types.lookup_defaults(t[8], t.lineno(1))
     proc = ProcNode(t[3], t[5], type, None, None, t.lineno(1))
-    try:
-        functions.insert_forward(t[3], proc)
-    except symbol_table.SymbolInsertionError,e:
-        raise TypeError(t.lineno(1), str(e))
+    functions.insert_forward(t[3], proc, t.lineno(1))
     t[0] = proc
 
 
@@ -374,18 +337,12 @@ def p_expression_read(t):
 
 def p_expression_02(t):
     ''' exp : ID'''
-    try:
-        t[0] = variables.lookup(t[1])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(1), "variable was not declared: %s" % t[1])
+    t[0] = variables.lookup(t[1], t.lineno(1))
     
 
 def p_expression_array(t):
     ''' exp : ID exparray'''
-    try:
-        tmp = variables.lookup(t[1])
-    except symbol_table.SymbolLookupError, e:
-        raise TypeError(t.lineno(1), "variable was not declared: %s" % t[1])
+    tmp = variables.lookup(t[1], t.lineno(1))
     t[0] = ArrayNode(tmp, t[2], t[1], t.lineno(1))
 
 
@@ -397,18 +354,12 @@ def p_unary_expression(t):
 
 def p_procedure_call_expression(t):
     ''' exp : ID LPAREN RPAREN'''
-    try:
-        proc = functions.lookup(t[1])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(1), "function has not been declared: %s" % t[1])
+    proc = functions.lookup(t[1], t.lineno(1))
     t[0] = CallNode(proc, ArgNode(t.lineno(1)), t.lineno(1))
 
 def p_procedure_call_with_args_expression(t):
     '''exp : ID LPAREN argument_list RPAREN'''
-    try:
-        proc = functions.lookup(t[1])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(1), 'function has not been declared: %s' % t[1])
+    proc = functions.lookup(t[1], t.lineno(1))
     t[0] = CallNode(proc, t[3], t.lineno(1))
 
 def p_argument_list(t):
@@ -452,19 +403,13 @@ def p_expression_parens(t):
 
 def p_lvalue(t):
     ''' lvalue : ID '''
-    try:
-        t[0] = variables.lookup(t[1])
-    except symbol_table.SymbolLookupError, e:
-        raise TypeError(t.lineno(1), "variable was not declared: %s" % t[1])
+    t[0] = variables.lookup(t[1], t.lineno(1))
 
 
 
 def p_lvalue_arr(t):
     ''' lvalue : ID exparray'''
-    try:
-        var = variables.lookup(t[1])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(1), "variable was not declared: %s" % t[1])
+    var = variables.lookup(t[1], t.lineno(1))
     t[0] = ArrayNode(var, t[2], t[1], t.lineno(1))
 
 def p_typeid(t):
@@ -483,15 +428,9 @@ def p_declistx(t):
     '''declistx : idlist COLON typeid'''
     dec = DecNode(t.lineno(3))
     for i in t[1]:
-        try:
-            type = types.lookup(t[3])
-        except symbol_table.SymbolLookupError,e:
-            raise TypeError(t.lineno(2), "type was not declared: %s" % t[3])
-        var = VarNode(types.lookup(t[3]),i)
-        try:
-            variables.insert(i, var)
-        except symbol_table.SymbolInsertionError,e:
-            raise TypeError(t.lineno(2), "parameter variable already exists in scope: %s" % i)
+        type = types.lookup(t[3], t.lineno(1))
+        var = VarNode(types.lookup(t[3], t.lineno(2)),i)
+        variables.insert(i, var, t.lineno(2))
         dec.append(var)
 
     t[0] = dec
@@ -501,14 +440,8 @@ def p_declistx_extension(t):
     '''declistx : idlist COLON typeid COMMA declistx'''
     dec = t[5]
     for i in t[1]:
-        try:
-            var = VarNode(types.lookup(t[3]),i)
-        except symbol_table.SymbolLookupError,e:
-            raise TypeError(t.lineno(2), "type was not declared: %s" % t[3])
-        try:
-            variables.insert(i, var)
-        except symbol_table.SymbolInsertionError,e:
-            raise TypeError(t.lineno(2), "parameter variable already exists in scope: %s" % i)
+        var = VarNode(types.lookup(t[3], t.lineno(2)),i)
+        variables.insert(i, var, t.lineno(2))
         dec.append(var)
     t[0] = dec
 
@@ -524,10 +457,7 @@ def p_declistx_forward(t):
     '''declistx_forward : idlist COLON typeid'''
     dec = DecNode(t.lineno(3))
     for i in t[1]:
-        try:
-            var = VarNode(types.lookup(t[3]),i)
-        except symbol_table.SymbolLookupError,e:
-            raise TypeError(t.lineno(2), "types was not declared: %s" % t[3])
+        var = VarNode(types.lookup(t[3], t.lineno(2)),i)
         dec.append(var)
 
     t[0] = dec
@@ -537,32 +467,20 @@ def p_declistx_forward_extension(t):
     '''declistx_forward : idlist COLON typeid COMMA declistx_forward'''
     dec = t[5]
     for i in t[1]:
-        try:
-            var = VarNode(types.lookup(t[3]),i)
-        except symbol_table.SymbolLookupError,e:
-            raise TypeError(t.lineno(2), "type was not declared: %s" % t[3])
+        var = VarNode(types.lookup(t[3], t.lineno(2)),i)
         dec.append(var)
     t[0] = dec
 
 def p_type(t):
     ''' type : TYPE ID EQ typeid SEMI'''
-    try:
-        types.insert(t[2], types.lookup(t[4]))
-    except symbol_table.SymbolInsertionError,e:
-        raise TypeError(t.lineno(1), "type was not declared: %s" % t[2])
+    types.insert(t[2], types.lookup(t[4], t.lineno(1)), t.lineno(1))
 
 def p_type_arrays(t):
     ''' type : TYPE ID EQ typeid intarrays SEMI'''
     tmp = t[5]
-    try:
-        original_type = types.lookup(t[4])
-    except symbol_table.SymbolLookupError,e:
-        raise TypeError(t.lineno(1), "type was not declared: %s" % t[4])
+    original_type = types.lookup(t[4], t.lineno(1))
     tmp.extend(original_type[1])
-    try:
-        types.insert(t[2], (original_type[0], tmp))
-    except symbol_table.SymbolInsertionError,e:
-        raise TypeError(t.linno(1), "type already exists in table: %s" % t[2])
+    types.insert(t[2], (original_type[0], tmp), t.lineno(1))
 
 def p_empty(t):
     '''empty :'''
