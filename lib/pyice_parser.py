@@ -52,10 +52,13 @@ class Breaks(object):
 breaks = Breaks()
 
 def p_program(t):
-    ''' program : begins
-                | begins stms'''
+    ''' program : begins'''
+    t[0] = ProgramNode(t[1])
+
+def p_program_02(t):
+    ''' program : begins stms'''
     # Null statement, everything happens in the actions
-    pass
+    t[0] = ProgramNode(t[1], t[2])
 
 def p_begins(t):
     ''' begins : var begins
@@ -68,15 +71,15 @@ def p_begins(t):
 
 def p_statements(t):
     '''stms : stm stms'''
-    tmp = t[2]
-    tmp.append(t[1])
-    t[0] = tmp
+    tmp = [t[1]]
+    tmp.extend(t[2].children)
+    t[0] = Node(tmp)
 
 
 def p_statements_initial(t):
     '''stms : stm'''
     # Null statement, everything happens in the actions
-    t[0] = [t[1]]
+    t[0] = Node([t[1]])
 
 def p_statement_01(t):
     '''stm : if 
@@ -155,7 +158,7 @@ def p_select(t):
 
 def p_select_else(t):
     ''' select : BOX ELSE ARROW stms FI'''
-    t[0] = t[4]
+    t[0] = [t[4]]
     
 
 def p_do(t):
@@ -249,7 +252,7 @@ def p_idlist_expansion(t):
 def p_var(t):
     ''' var : VAR varlist SEMI'''
     # Null statement. Everything happens in varlist
-    pass
+    t[0] = t[2]
 
 def p_varlist(t):
     '''varlist : idlist COLON typeid
@@ -301,7 +304,7 @@ def p_forward_return_type(t):
 def p_exp_array(t):
     ''' exparray : LBRACK exp RBRACK '''
     if t[2].type == ('int', []):
-        t[0] = [1]
+        t[0] = [t[2]]
         # I'm ignoring the expressions values for now
     else:
         raise TypeError(t.lineno(1), 'array indices must be integers')
@@ -309,7 +312,7 @@ def p_exp_array(t):
 def p_exp_array_expansion(t):
     ''' exparray : LBRACK exp RBRACK exparray '''
     if t[2].type == ('int', []):
-        tmp = [1]
+        tmp = [t[2]]
         tmp.extend(t[4])
         t[0] = tmp
         # I'm ignoring the expressions values for now
@@ -343,7 +346,7 @@ def p_expression_02(t):
 def p_expression_array(t):
     ''' exp : ID exparray'''
     tmp = variables.lookup(t[1], t.lineno(1))
-    t[0] = ArrayNode(tmp, t[2], t[1], t.lineno(1))
+    t[0] = ArrayNode(tmp, t[2], t.lineno(1))
 
 
 
@@ -410,7 +413,7 @@ def p_lvalue(t):
 def p_lvalue_arr(t):
     ''' lvalue : ID exparray'''
     var = variables.lookup(t[1], t.lineno(1))
-    t[0] = ArrayNode(var, t[2], t[1], t.lineno(1))
+    t[0] = ArrayNode(var, t[2], t.lineno(1))
 
 def p_typeid(t):
     ''' typeid : ID''' # just for semantics

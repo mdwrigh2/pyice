@@ -1,3 +1,13 @@
+class LabelGenerator(object):
+    def __init__(self):
+        self.i = 0
+
+    def next(self):
+        string = "label%d" % self.i
+        self.i += 1
+        return string
+
+label = LabelGenerator()
 class TypeError(Exception):
     def __init__(self, lineno, message):
         self.lineno = lineno
@@ -110,9 +120,10 @@ class WriteNode(object):
             raise TypeError(lineno, 'incompatible type on write operation')
 
 class ArrayNode(object):
-    def __init__(self, var, indices, name, lineno):
-        self.name = name
+    def __init__(self, var, indices, lineno):
         self.is_writeable = True
+        self.var = var
+        self.name = self.var.name
         if len(var.type[1]) >= len(indices):
             self.var = var
             tmp = var.type[1][:]
@@ -247,3 +258,12 @@ class CallNode(object):
                     pass
                 else:
                     raise TypeError(lineno, 'Incorrect type for function call')
+
+class Node(object):
+    def __init__(self, children):
+        self.children = children
+
+class ProgramNode(object):
+    def __init__(self, begins, stms = None):
+        self.begins = begins
+        self.stms = stms
