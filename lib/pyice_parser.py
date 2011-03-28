@@ -255,22 +255,55 @@ def p_var(t):
     t[0] = t[2]
 
 def p_varlist(t):
-    '''varlist : idlist COLON typeid
-               | idlist COLON typeid COMMA varlist'''
+    '''varlist : idlist COLON typeid '''
     type = types.lookup(t[3], t.lineno(2))
+    tmp = []
     for var in t[1]:
-        variables.insert(var, VarNode(type, var), t.lineno(2))
+        var_node = VarNode(type, var)
+        variables.insert(var, var_node, t.lineno(2))
+        tmp.append(var_node)
+    t[0] = Node(tmp)
+
+def p_varlist_02(t):
+    '''varlist : idlist COLON typeid COMMA varlist'''
+    type = types.lookup(t[3], t.lineno(2))
+    tmp = []
+    for var in t[1]:
+        var_node = VarNode(type, var)
+        variables.insert(var, var_node, t.lineno(2))
+        tmp.append(var_node)
+    node = t[5]
+    node.children.extend(tmp)
+    t[0] = node
     
 
 def p_varlist_arrays(t):
-    ''' varlist : idlist COLON typeid intarrays
-                | idlist COLON typeid intarrays COMMA varlist'''
+    ''' varlist : idlist COLON typeid intarrays'''
     type = types.lookup(t[3], t.lineno(2))
     tmp = t[4]
     tmp.extend(type[1])
     new_type = (type[0], tmp)
+    tmp = []
     for var in t[1]:
-        variables.insert(var, VarNode(new_type), t.lineno(2))
+        var_node = VarNode(new_type, var)
+        variables.insert(var, var_node, t.lineno(2))
+        tmp.append(var_node)
+    t[0] = Node(tmp)
+
+def p_varlist_arrays_02(t):
+    ''' varlist : idlist COLON typeid intarrays COMMA varlist'''
+    type = types.lookup(t[3], t.lineno(2))
+    tmp = t[4]
+    tmp.extend(type[1])
+    new_type = (type[0], tmp)
+    tmp = []
+    for var in t[1]:
+        var_node = VarNode(new_type, var)
+        variables.insert(var, var_node, t.lineno(2))
+        tmp.append(var_node)
+    node = t[6]
+    node.children.extend(tmp)
+    t[0] = node
 
 
 def p_arrays(t):

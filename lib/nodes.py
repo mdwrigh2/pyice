@@ -8,6 +8,7 @@ class LabelGenerator(object):
         return string
 
 label = LabelGenerator()
+
 class TypeError(Exception):
     def __init__(self, lineno, message):
         self.lineno = lineno
@@ -20,12 +21,24 @@ class LitNode(object):
         self.val = val
         self.type = type
 
+    def __str__(self):
+        return "(%s)" % (str(self.val))
+
 class ReadNode(object):
     def __init__(self, lineno):
         self.type = ('int', [])
 
+    def __str__(self):
+        return "(READ)"
+
 class BinOpNode(object):
+    def __str__(self):
+        return "(%s %s %s)" % (self.op, self.lnode, self.rnode)
+
     def __init__(self, op, lnode, rnode, lineno):
+        self.op = op
+        self.lnode = lnode
+        self.rnode = rnode
         if op == '+':
             if lnode.type == ('bool',[]) and rnode.type == ('bool',[]):
                 # Boolean or
@@ -99,6 +112,8 @@ class BinOpNode(object):
 
 class UnaryOpNode(object):
     def __init__(self, op, child, lineno):
+        self.op = op
+        self.child = child
         if op == '-':
             if child.type == ('int', []):
                 self.type = ('int', [])
@@ -112,18 +127,27 @@ class UnaryOpNode(object):
             else:
                 raise TypeError(lineno, 'incompatible types to unary operator')
 
+    def __str__(self):
+        return "(%s %s)" % (self.op, self.child)
+
 class WriteNode(object):
     def __init__(self, op, child, lineno):
+        self.op = op
+        self.child = child
         if child.type == ('int', []) or child.type == ('string', []):
             self.type = None
         else:
             raise TypeError(lineno, 'incompatible type on write operation')
+
+    def __str__(self):
+        return "(%s %s)" % (self.op, self.child)
 
 class ArrayNode(object):
     def __init__(self, var, indices, lineno):
         self.is_writeable = True
         self.var = var
         self.name = self.var.name
+        self.indices = indices
         if len(var.type[1]) >= len(indices):
             self.var = var
             tmp = var.type[1][:]
@@ -132,6 +156,13 @@ class ArrayNode(object):
             self.type = (var.type[0], tmp)
         else:
             raise TypeError(lineno, 'attempted to access non-array object as array')
+    def __str__(self):
+        string = "("+self.name
+        for i in self.indices:
+            string += "[%s]" % (i)
+        string += ")"
+        return string
+
 
 class VarNode(object):
     def __init__(self, type, name=None, val=None, is_writeable = True):
@@ -139,15 +170,20 @@ class VarNode(object):
         self.val = val
         self.name = name
         self.is_writeable = is_writeable
+    def __str__(self):
+        string = "(VAR %s %s)" % (self.type, self.name)
 
 class ReturnNode(object):
-    pass
+    def __str__(self):
+        return "(RETURN)"
 
 class BreakNode(object):
-    pass
+    def __str__(self):
+        return "(BREAK)"
 
 class ExitNode(object):
-    pass
+    def __str__(self):
+        return "(EXIT)"
 
 class AssignNode(object):
     def __init__(self, lnode, rnode, lineno):
@@ -162,13 +198,33 @@ class AssignNode(object):
         else:
             raise TypeError(lineno, lnode.name)
 
+    def __str__(self):
+        return "(ASSIGN %s %s)" % (str(lnode), str(rnode))
+
 
 class IfNode(object):
     def __init__(self, cond, then, elifs=None, els=None, lineno=0):
+        self.cond = cond
+        self.then = then
+        if not elifs:
+            elifs = []
+        self.elifs = elifs
+        self.els = els
         if cond.type == ('bool', []):
             pass
         else:
             raise TypeError(lineno, 'if')
+
+    def __str__(self):
+        string = "(IF %s THEN %s" % (self.cond, self.then)
+        for e in self.elifs:
+            string += "ELIF %s THEN %s" % (e.cond, e.then)
+
+        if self.els:
+            string += "ELSE %s" % (str(self.els))
+
+        string += ")"
+        return string
         
 class StatementsNode(object):
     def __init__(self, stmt):
@@ -177,12 +233,23 @@ class StatementsNode(object):
     def append(self, stmt):
         self.stmts.append(stmt)
 
+    def __str__(self):
+        string = ""
+        for s in self.stmts:
+            string += str(s)+"\n"
+
+        return string
+
+
 class DoNode(object):
     def __init__(self, exp, then, lineno):
         if exp.type == ('bool', []):
             pass
         else:
             raise TypeError(lineno, 'do')
+
+    def __str__(self):
+        pass
 
 class ForNode(object):
     def __init__(self,init_name, initial, final, stms = None, lineno = 0):
