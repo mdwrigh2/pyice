@@ -1,3 +1,5 @@
+import re
+
 class LabelGenerator(object):
     def __init__(self):
         self.i = 0
@@ -23,6 +25,17 @@ class LitNode(object):
 
     def __str__(self):
         return "(%s)" % (str(self.val))
+    def jasmin(self):
+        if self.type[0] == 'int':
+            return "ldc %d\n" % self.val
+        elif self.type[0] == 'string':
+            return "ldc %s\n" % self.val
+        else:
+            if re.search(r"true", self.val, flags=re.IGNORECASE):
+                return "ldc 1\n"
+            else:
+                return "ldc 0\n"
+
 
 class ReadNode(object):
     def __init__(self, lineno):
@@ -30,6 +43,9 @@ class ReadNode(object):
 
     def __str__(self):
         return "(READ)"
+
+    def jasmin(self):
+        return "invokestatic %s.read()I" % className
 
 class BinOpNode(object):
     def __str__(self):
@@ -130,6 +146,19 @@ class UnaryOpNode(object):
     def __str__(self):
         return "(%s %s)" % (self.op, self.child)
 
+    def jasmin(self):
+        string = self.child.jasmin()
+        if self.op == "-":
+            if self.type == ('int', []):
+                string += "ineg\n"
+                return string
+            else:
+                l = label.next() 
+                l2 = label.next()
+                string += "ifne %s\n" % l
+                # need to finish this
+
+
 class WriteNode(object):
     def __init__(self, op, child, lineno):
         self.op = op
@@ -170,8 +199,18 @@ class VarNode(object):
         self.val = val
         self.name = name
         self.is_writeable = is_writeable
+        self.location = -1
     def __str__(self):
         string = "(VAR %s %s)" % (self.type, self.name)
+        return string
+
+class VarDeclNode(VarNode):
+    def __init__(self, var):
+        self.var = var
+
+    def __str__(self):
+        string = "(VAR-DECL %s %s)" % (self.var.type, self.var.name)
+        return string
 
 class ReturnNode(object):
     def __str__(self):
@@ -199,7 +238,7 @@ class AssignNode(object):
             raise TypeError(lineno, lnode.name)
 
     def __str__(self):
-        return "(ASSIGN %s %s)" % (str(lnode), str(rnode))
+        return "(ASSIGN %s %s)" % (str(self.lnode), str(self.rnode))
 
 
 class IfNode(object):
@@ -243,13 +282,15 @@ class StatementsNode(object):
 
 class DoNode(object):
     def __init__(self, exp, then, lineno):
+        self.exp = exp
+        self.then = then
         if exp.type == ('bool', []):
             pass
         else:
             raise TypeError(lineno, 'do')
 
     def __str__(self):
-        pass
+        return "(WHILE %s DO %s)" % (str(self.exp), str(self.then))
 
 class ForNode(object):
     def __init__(self,init_name, initial, final, stms = None, lineno = 0):
@@ -260,6 +301,9 @@ class ForNode(object):
             self.stms = stms
         else:
             raise TypeError(lineno, 'fa')
+
+    def __str__(self):
+        return "(FOR %s FROM %s TO %s DO %s)" % (self.init_name, self.initial, self.final, self.stms)
 
 class DecNode(object):
     def __init__(self, lineno):
@@ -280,17 +324,30 @@ class DecNode(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __str__(self):
+        string = "("
+        for node in self.var_nodes:
+            string += "(%s : %s) " % (node.name, node.type)
+
+        string += ")"
+        return string
+
 
 class ProcNode(object):
-    def __init__(self, name, declist, ret, typevars, stmts, lineno):
+    def __init__(self, name, declist, ret, ret_var, typevars, stmts, lineno):
         if not (ret == ('int', []) or ret == ('bool', []) or ret == ('string', []) or ret == ()):
             raise TypeError(lineno, 'proc %s does not return a basic type (int, bool, string).' % name)
         self.name = name
         self.declist = declist
         self.ret = ret
+        self.ret_var = ret_var
         self.typevars = typevars
         self.stmts = stmts
         self.lineno = lineno
+
+    def __str__(self):
+        string = "(PROC (%s : %s) %s\n %s)" % (self.declist, self.ret,self.typevars, self.stmts)
+        return string
 
 class ArgNode(object):
     def __init__(self, lineno):
@@ -298,6 +355,13 @@ class ArgNode(object):
 
     def append(self, node):
         self.arg_nodes.append(node)
+
+    def __str__(self):
+        string = "("
+        for arg in self.arg_nodes:
+            string += "(%s)" % arg
+        string += ")"
+        return string
 
 
 class NullNode(object):
@@ -308,6 +372,9 @@ class NullNode(object):
 
     def is_null(self):
         return True
+
+    def __str__(self):
+        return "()"
 
 class CallNode(object):
     def __init__(self, proc, args, lineno):
@@ -326,11 +393,32 @@ class CallNode(object):
                 else:
                     raise TypeError(lineno, 'Incorrect type for function call')
 
+    def __str__(self):
+        string = "(CALL %s %s)" % (self.proc.name, self.args)
+        return string
+
 class Node(object):
     def __init__(self, children):
         self.children = children
+
+    def __str__(self):
+        string = "("
+        for child in self.children:
+            string += "(%s)\n" % (child)
+
+        string += ")"
+        return string
+    
+    def prepend(self, item):
+        self.children = [item] + self.children
 
 class ProgramNode(object):
     def __init__(self, begins, stms = None):
         self.begins = begins
         self.stms = stms
+
+    def __str__(self):
+        string = "(PROGRAM \n"
+        string += "  BEGINS %s" % self.begins
+        string += "\n  STMS %s" % self.stms
+        return string

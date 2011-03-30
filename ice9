@@ -18,6 +18,7 @@ class Compiler:
     def _parse(self, code):
         try:
             self.ast = yacc.parse(code)
+            print self.ast
             # Finished compiling, make sure all functions have definitions
             for func in lib.pyice_parser.functions.values():
                 if not func.stmts:

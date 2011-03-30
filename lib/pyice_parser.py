@@ -64,16 +64,20 @@ def p_begins(t):
     ''' begins : var begins
                | type begins
                | forward begins
-               | proc begins
-               | empty'''
-    # Null statement, everything happens in the actions
-    pass
+               | proc begins'''
+    node = t[2]
+    node.prepend(t[1])
+    t[0] = node
+
+def p_begins_02(t):
+    ''' begins : empty'''
+    t[0] = Node([])
 
 def p_statements(t):
     '''stms : stm stms'''
-    tmp = [t[1]]
-    tmp.extend(t[2].children)
-    t[0] = Node(tmp)
+    node = t[2]
+    node.prepend(t[1])
+    t[0] = node
 
 
 def p_statements_initial(t):
@@ -168,7 +172,7 @@ def p_do(t):
 
 def p_do_stmts(t):
     '''do : DO break_push exp ARROW stms OD'''
-    t[0] = DoNode(t[3], t[4], t.lineno(1))
+    t[0] = DoNode(t[3], t[5], t.lineno(1))
     breaks.dec()
 
 def p_fa(t):
@@ -198,7 +202,7 @@ def p_proc_05(t):
         type = ()
     else:
         type = types.lookup_defaults(t[3][2], t.lineno(1))
-    proc = ProcNode(t[3][0], t[3][1], type, t[4], NullNode(), t.lineno(1)) 
+    proc = ProcNode(t[3][0], t[3][1], type, t[3][3], t[4], NullNode(), t.lineno(1)) 
     functions.insert(t[3][0], proc, t.lineno(1))
     variables.pop()
     types.pop()
@@ -212,31 +216,42 @@ def p_proc_06(t):
         type = ()
     else:
         type = types.lookup(t[3][2], t.lineno(1))
-    proc = ProcNode(t[3][0], t[3][1], type, t[4], t[5], t.lineno(1)) 
+    proc = ProcNode(t[3][0], t[3][1], type,t[3][3], t[4], t[5], t.lineno(1)) 
     functions.insert(t[3][0], proc, t.lineno(1))
     t[0] = proc
 
 
 def p_proc_no_ret(t):
     '''proc_center : ID LPAREN declist RPAREN'''
-    proc = ProcNode(t[1], t[3], (), None, None, t.lineno(1))
+    proc = ProcNode(t[1], t[3], (), None, None, None, t.lineno(1))
     functions.insert(t[1], proc, t.lineno(1))
-    t[0] = [t[1], t[3], NullNode()]
+    t[0] = [t[1], t[3], NullNode(), None]
 
 def p_proc_ret(t):
     '''proc_center : ID LPAREN declist RPAREN COLON typeid'''
     type = types.lookup(t[6], t.lineno(1))
-    proc = ProcNode(t[1], t[3], type, None, None, t.lineno(1))
+    proc = ProcNode(t[1], t[3], type, None, None, None, t.lineno(1))
     functions.insert(t[1], proc, t.lineno(1))
-    variables.insert(t[1], VarNode(type, t[1]), t.lineno(1))
-    t[0] = [t[1], t[3], t[6]]
+    var = VarNode(type, t[1])
+    variables.insert(t[1], var, t.lineno(1))
+    t[0] = [t[1], t[3], t[6], var]
 
 
 def p_typevars(t):
-    ''' typevars : var typevars
-                 | type typevars
-                 | empty'''
-    # Null statement, everything happens in the vars and types themselves
+    ''' typevars : var typevars'''
+    node = t[2]
+    node.prepend(t[1])
+    t[0] = node
+
+
+def p_typevars_types(t):
+    ''' typevars : type typevars'''
+    t[0] = t[2]
+
+def p_typevars_empty(t):
+    ''' typevars : empty'''
+    t[0] = Node([])
+
     pass
 
 def p_idlist(t):
@@ -260,8 +275,9 @@ def p_varlist(t):
     tmp = []
     for var in t[1]:
         var_node = VarNode(type, var)
+        var_decl = VarDeclNode(var_node)
         variables.insert(var, var_node, t.lineno(2))
-        tmp.append(var_node)
+        tmp.append(var_decl)
     t[0] = Node(tmp)
 
 def p_varlist_02(t):
@@ -270,8 +286,9 @@ def p_varlist_02(t):
     tmp = []
     for var in t[1]:
         var_node = VarNode(type, var)
+        var_decl = VarDeclNode(var_node)
         variables.insert(var, var_node, t.lineno(2))
-        tmp.append(var_node)
+        tmp.append(var_decl)
     node = t[5]
     node.children.extend(tmp)
     t[0] = node
@@ -286,8 +303,9 @@ def p_varlist_arrays(t):
     tmp = []
     for var in t[1]:
         var_node = VarNode(new_type, var)
+        var_decl = VarDeclNode(var_node)
         variables.insert(var, var_node, t.lineno(2))
-        tmp.append(var_node)
+        tmp.append(var_decl)
     t[0] = Node(tmp)
 
 def p_varlist_arrays_02(t):
@@ -299,8 +317,9 @@ def p_varlist_arrays_02(t):
     tmp = []
     for var in t[1]:
         var_node = VarNode(new_type, var)
+        var_decl = VarDeclNode(var_node)
         variables.insert(var, var_node, t.lineno(2))
-        tmp.append(var_node)
+        tmp.append(var_decl)
     node = t[6]
     node.children.extend(tmp)
     t[0] = node
@@ -318,7 +337,7 @@ def p_arrays_expansion(t):
 
 def p_forward(t):
     '''forward : FORWARD push_table ID LPAREN declist_forward RPAREN SEMI'''
-    proc = ProcNode(t[3], t[5], (), None, None, t.lineno(1))
+    proc = ProcNode(t[3], t[5], (), None, None, None, t.lineno(1))
     functions.insert_forward(t[3], proc, t.lineno(1))
     t[0] = proc
     variables.pop()
@@ -329,7 +348,7 @@ def p_forward_return_type(t):
     variables.pop()
     types.pop()
     type = types.lookup_defaults(t[8], t.lineno(1))
-    proc = ProcNode(t[3], t[5], type, None, None, t.lineno(1))
+    proc = ProcNode(t[3], t[5], type, None, None, None, t.lineno(1))
     functions.insert_forward(t[3], proc, t.lineno(1))
     t[0] = proc
 
