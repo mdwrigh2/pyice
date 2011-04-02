@@ -30,6 +30,7 @@ start = 'program'
 variables = symbol_table.SymbolTable("variable")
 functions = symbol_table.FunctionTable()
 types     = symbol_table.SymbolTable("type",[{'int': ('int', []), 'bool': ('bool',[]), 'string': ('string', [])},{}])
+var_decs = symbol_table.SymbolTable('var-declarations')
 
 class Breaks(object):
     def __init__(self):
@@ -276,6 +277,7 @@ def p_varlist(t):
     for var in t[1]:
         var_node = VarNode(type, var)
         var_decl = VarDeclNode(var_node)
+        var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     t[0] = Node(tmp)
@@ -287,6 +289,7 @@ def p_varlist_02(t):
     for var in t[1]:
         var_node = VarNode(type, var)
         var_decl = VarDeclNode(var_node)
+        var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     node = t[5]
@@ -304,6 +307,7 @@ def p_varlist_arrays(t):
     for var in t[1]:
         var_node = VarNode(new_type, var)
         var_decl = VarDeclNode(var_node)
+        var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     t[0] = Node(tmp)
@@ -318,6 +322,7 @@ def p_varlist_arrays_02(t):
     for var in t[1]:
         var_node = VarNode(new_type, var)
         var_decl = VarDeclNode(var_node)
+        var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     node = t[6]
@@ -420,14 +425,14 @@ def p_procedure_call_with_args_expression(t):
 def p_argument_list(t):
     ''' argument_list : exp '''
     args = ArgNode(t.lineno(1))
-    args.append(t[1])
+    args.prepend(t[1])
     t[0] = args
 
  
 def p_argument_list_expansion(t):
     ''' argument_list : exp COMMA argument_list'''
     args = t[3]
-    args.append(t[1])
+    args.prepend(t[1])
     t[0] = args
 
 

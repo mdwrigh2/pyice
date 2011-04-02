@@ -1,4 +1,5 @@
 import re
+from jasmin_constants import init_jasmin, jasmin_types
 
 class LabelGenerator(object):
     def __init__(self):
@@ -9,7 +10,19 @@ class LabelGenerator(object):
         self.i += 1
         return string
 
+# Constants necessary for jasmin output
+
 label = LabelGenerator()
+className = ""
+
+breakLabels = []
+
+local_count = 0
+fields = False
+
+curr_proc = None
+
+# End Constants
 
 class TypeError(Exception):
     def __init__(self, lineno, message):
@@ -45,7 +58,7 @@ class ReadNode(object):
         return "(READ)"
 
     def jasmin(self):
-        return "invokestatic %s.read()I" % className
+        return "invokestatic %s/read()I\n" % className
 
 class BinOpNode(object):
     def __str__(self):
@@ -156,12 +169,29 @@ class UnaryOpNode(object):
                 l = label.next() 
                 l2 = label.next()
                 string += "ifne %s\n" % l
-                # need to finish this
+                string += "ldc 1\n"
+                string += "goto %s\n" % l2
+                string += "%s:\n" %l
+                string += "ldc 0\n"
+                string += "%s:\n" %l2
+        else:
+            # op is ?
+            l = label.next() 
+            l2 = label.next()
+            string += "ifne %s\n" % l
+            string += "ldc 0\n"
+            string += "goto %s\n" % l2
+            string += "%s:\n" % l
+            string += "ldc 1\n"
+            string += "%s:\n" %l2
+
+        return string
+
 
 
 class WriteNode(object):
     def __init__(self, op, child, lineno):
-        self.op = op
+        self.op = op.lower()
         self.child = child
         if child.type == ('int', []) or child.type == ('string', []):
             self.type = None
@@ -170,6 +200,19 @@ class WriteNode(object):
 
     def __str__(self):
         return "(%s %s)" % (self.op, self.child)
+
+    def jasmin(self):
+        string = self.child.jasmin()
+        if self.child.type == ('int', []):
+            string += "invokestatic %s/print(I)V\n" % className
+        elif self.child.type == ('string', []):
+            string += 'invokestatic %s/print(Ljava/lang/String;)V\n' % className
+        if self.op == "write":
+            string += 'ldc "\\n"\n'
+            string += 'invokestatic %s/print(Ljava/lang/String;)V\n' % className
+
+        return string
+
 
 class ArrayNode(object):
     def __init__(self, var, indices, lineno):
@@ -185,12 +228,19 @@ class ArrayNode(object):
             self.type = (var.type[0], tmp)
         else:
             raise TypeError(lineno, 'attempted to access non-array object as array')
+
     def __str__(self):
         string = "("+self.name
         for i in self.indices:
             string += "[%s]" % (i)
         string += ")"
         return string
+
+    def jasmin(self):
+        pass
+
+    def jasmin_set(self):
+        pass
 
 
 class VarNode(object):
@@ -199,10 +249,41 @@ class VarNode(object):
         self.val = val
         self.name = name
         self.is_writeable = is_writeable
-        self.location = -1
+        self.local = -1
+        self.is_static = False
+
     def __str__(self):
         string = "(VAR %s %s)" % (self.type, self.name)
         return string
+
+    def jasmin(self):
+        if self.is_static:
+            string = "getstatic %s/%s %s\n" % (className, self.name, jasmin_types(self.type))
+        else:
+            if self.type == ('string', []):
+                string = "aload %i\n" % self.local
+            elif self.type == ('int', []):
+                string = "iload %i\n" % self.local
+            elif self.type == ('bool', []):
+                string = "iload %i\n" % self.local
+            else:
+                raise TypeError(0, 'expected a basic type -- jasmin error')
+        return string
+
+    def jasmin_set(self):
+        if self.is_static:
+            string = "putstatic %s/%s %s\n" % (className, self.name, jasmin_types(self.type))
+        else:
+            if self.type == ('string', []):
+                string = "astore %i\n" % self.local
+            elif self.type == ('int', []):
+                string = "istore %i\n" % self.local
+            elif self.type == ('bool', []):
+                string = "istore %i\n" % self.local
+            else:
+                raise TypeError(0, 'expected a basic type -- jasmin error')
+        return string
+
 
 class VarDeclNode(VarNode):
     def __init__(self, var):
@@ -212,9 +293,37 @@ class VarDeclNode(VarNode):
         string = "(VAR-DECL %s %s)" % (self.var.type, self.var.name)
         return string
 
+    def jasmin(self):
+        if not curr_proc:
+            self.var.is_static = True
+            string = ".field public static %s %s\n" % (self.var.name, jasmin_types(self.var.type))
+        else:
+            global local_count
+            s = local_count
+            local_count += 1
+            if self.var.type == ('bool', []) or self.var.type == ('int', []):
+                string = "ldc 0\n"
+                string += "istore %d\n" % (s)
+            else:
+                string = "aconst_null\n"
+                string += "astore %d\n" % (s)
+            self.var.local = s
+        return string
+
 class ReturnNode(object):
     def __str__(self):
         return "(RETURN)"
+
+    def jasmin(self):
+        if not curr_proc:
+            return "return\n"
+        string = curr_proc.ret_var.jasmin()
+        if curr_proc.ret == ('string', []):
+            string += "areturn\n"
+        else:
+            string += "ireturn\n"
+
+        return string
 
 class BreakNode(object):
     def __str__(self):
@@ -223,6 +332,9 @@ class BreakNode(object):
 class ExitNode(object):
     def __str__(self):
         return "(EXIT)"
+
+    def jasmin(self):
+        return "iconst_1\ninvokestatic java/lang/System/exit(I)V\n"
 
 class AssignNode(object):
     def __init__(self, lnode, rnode, lineno):
@@ -239,6 +351,11 @@ class AssignNode(object):
 
     def __str__(self):
         return "(ASSIGN %s %s)" % (str(self.lnode), str(self.rnode))
+
+    def jasmin(self):
+        string = self.rnode.jasmin()
+        string += self.lnode.jasmin_set()
+        return string
 
 
 class IfNode(object):
@@ -276,6 +393,13 @@ class StatementsNode(object):
         string = ""
         for s in self.stmts:
             string += str(s)+"\n"
+
+        return string
+
+    def jasmin(self):
+        string = ""
+        for s in self.stmts:
+            string += s.jasmin()
 
         return string
 
@@ -332,6 +456,22 @@ class DecNode(object):
         string += ")"
         return string
 
+    def __len__(self):
+        return len(self.var_nodes)
+
+    def jasmin_types(self):
+        string = ""
+        for v in self.var_nodes:
+            string += jasmin_types(v.type)
+        return string
+
+    def setup(self):
+        global local_count
+        for v in self.var_nodes:
+            v.local = local_count
+            local_count += 1
+
+
 
 class ProcNode(object):
     def __init__(self, name, declist, ret, ret_var, typevars, stmts, lineno):
@@ -349,18 +489,39 @@ class ProcNode(object):
         string = "(PROC (%s : %s) %s\n %s)" % (self.declist, self.ret,self.typevars, self.stmts)
         return string
 
+    def jasmin(self):
+        global local_count
+        global curr_proc
+        curr_proc = self
+        local_count = 0
+        self.declist.setup()
+        self.ret_var.local = local_count
+        local_count += 1
+        string = ".method public static %s(%s)%s\n" % (self.name, self.declist.jasmin_types(), jasmin_types(self.ret))
+        string += ".limit stack 100\n"
+        jas_stms = self.stmts.jasmin()
+        string += ".limit locals %d\n" % (local_count+len(self.declist)+2) # declist become the first n local variables, and 1 for padding
+        string += jas_stms
+        string += ".end method\n"
+        return string
+
 class ArgNode(object):
     def __init__(self, lineno):
         self.arg_nodes = []
 
-    def append(self, node):
-        self.arg_nodes.append(node)
+    def prepend(self, node):
+        self.arg_nodes = [node] + self.arg_nodes
 
     def __str__(self):
         string = "("
         for arg in self.arg_nodes:
             string += "(%s)" % arg
         string += ")"
+        return string
+    def jasmin(self):
+        string = ""
+        for arg in self.arg_nodes:
+            string += arg.jasmin()
         return string
 
 
@@ -375,6 +536,8 @@ class NullNode(object):
 
     def __str__(self):
         return "()"
+    def jasmin(self):
+        return "; NULL\n"
 
 class CallNode(object):
     def __init__(self, proc, args, lineno):
@@ -397,6 +560,12 @@ class CallNode(object):
         string = "(CALL %s %s)" % (self.proc.name, self.args)
         return string
 
+    def jasmin(self):
+        string = self.args.jasmin()
+        string += "invokestatic %s/%s(%s)%s\n" % (className, self.proc.name, self.proc.declist.jasmin_types(), jasmin_types(self.proc.ret))
+        return string
+
+
 class Node(object):
     def __init__(self, children):
         self.children = children
@@ -412,6 +581,13 @@ class Node(object):
     def prepend(self, item):
         self.children = [item] + self.children
 
+    def jasmin(self):
+        string = ""
+        for child in self.children:
+            string += child.jasmin()
+        return string
+
+
 class ProgramNode(object):
     def __init__(self, begins, stms = None):
         self.begins = begins
@@ -421,4 +597,25 @@ class ProgramNode(object):
         string = "(PROGRAM \n"
         string += "  BEGINS %s" % self.begins
         string += "\n  STMS %s" % self.stms
+        return string
+
+    def jasmin(self, cn, variables, functions):
+        # This is a really terrible solution, but rather than sort the 
+        # "begins" node into functions and variables, I'm just passing the
+        # function dict in from after the parse. This sidesteps the problem of having
+        # to ignore forwards (since they're function nodes missing the stmts),
+        # and lets me output variables and then functions, which is necessary
+        # according to the jasmin spec
+        global className
+        global fields
+        className = cn
+        # string = initial values, setup main
+        string = init_jasmin(cn, variables)
+        for f in functions.values():
+            string += "%s \n ; END BEGINS \n" % f.jasmin()
+        string += " .method public static main([Ljava/lang/String;)V \n.limit stack 100\n.limit locals 100\n"
+        if self.stms:
+            string += "%s \n" % self.stms.jasmin()
+        string += "return\n"
+        string += ".end method\n"
         return string
