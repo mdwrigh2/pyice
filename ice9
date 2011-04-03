@@ -5,25 +5,23 @@ import lib.yacc as yacc
 import lib.pyice_parser
 
 import sys
+from optparse import OptionParser
 
 from lib.pyice_parser import ParseError
 from lib.pyice_lexer import LexError
 from lib.nodes import TypeError
 from lib.symbol_table import ProcInsertionError, SymbolLookupError, SymbolInsertionError
 
-import sys
 
 class Compiler:
 
     def _parse(self, code):
         try:
             self.program = yacc.parse(code)
-            #print self.ast
+            # Finished compiling, make sure all functions have definitions
             for func in lib.pyice_parser.functions.values():
                 if not func.stmts:
                     raise TypeError(-1, "function declared but not implemented")
-            print self.program.jasmin('test', lib.pyice_parser.var_decs, lib.pyice_parser.functions)
-            # Finished compiling, make sure all functions have definitions
         except ParseError, p:
             print >> sys.stderr, "line %d: syntax error near %s" % (p.lineno, p.token)
             sys.exit(100)
@@ -44,11 +42,15 @@ class Compiler:
             sys.exit(100)
 
 
-    def compile_file(self, filename):
+    def compile_file(self, filename, ast):
         source = open(filename, 'r')
         code = source.read()
         source.close
         self._parse(code)
+        if ast:
+            print self.program
+        else:
+            print self.program.jasmin('test', lib.pyice_parser.var_decs, lib.pyice_parser.functions)
     
     def compile_input(self, inputs):
         self._parse(inputs)
@@ -56,11 +58,17 @@ class Compiler:
 
 
 def start_compiler():
-    files = sys.argv[1:]
+    parser = OptionParser()
+    parser.add_option("-a", "--ast",
+                      help="output the AST", action="store_true", dest="ast")
+
+    (options, args) = parser.parse_args()
+    files = args
+    
 
     if files:
         for filename in files:
-            Compiler().compile_file(filename)
+            Compiler().compile_file(filename, options.ast)
     else:
         Compiler().compile_input(sys.stdin.read())
 

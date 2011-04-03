@@ -32,6 +32,7 @@ functions = symbol_table.FunctionTable()
 types     = symbol_table.SymbolTable("type",[{'int': ('int', []), 'bool': ('bool',[]), 'string': ('string', [])},{}])
 var_decs = symbol_table.SymbolTable('var-declarations')
 
+
 class Breaks(object):
     def __init__(self):
         self.breaks = 0
@@ -277,7 +278,9 @@ def p_varlist(t):
     for var in t[1]:
         var_node = VarNode(type, var)
         var_decl = VarDeclNode(var_node)
-        var_decs.insert(var, var_decl, t.lineno(2))
+        # Only insert if we're in the global scope
+        if len(variables.symbol_tables) == 1:
+            var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     t[0] = Node(tmp)
@@ -289,7 +292,8 @@ def p_varlist_02(t):
     for var in t[1]:
         var_node = VarNode(type, var)
         var_decl = VarDeclNode(var_node)
-        var_decs.insert(var, var_decl, t.lineno(2))
+        if len(variables.symbol_tables) == 1:
+            var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     node = t[5]
@@ -307,7 +311,8 @@ def p_varlist_arrays(t):
     for var in t[1]:
         var_node = VarNode(new_type, var)
         var_decl = VarDeclNode(var_node)
-        var_decs.insert(var, var_decl, t.lineno(2))
+        if len(variables.symbol_tables) == 1:
+            var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     t[0] = Node(tmp)
@@ -322,7 +327,8 @@ def p_varlist_arrays_02(t):
     for var in t[1]:
         var_node = VarNode(new_type, var)
         var_decl = VarDeclNode(var_node)
-        var_decs.insert(var, var_decl, t.lineno(2))
+        if len(variables.symbol_tables) == 1:
+            var_decs.insert(var, var_decl, t.lineno(2))
         variables.insert(var, var_node, t.lineno(2))
         tmp.append(var_decl)
     node = t[6]
