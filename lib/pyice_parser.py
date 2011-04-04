@@ -186,8 +186,9 @@ def p_fa(t):
 
 def p_fa_initial(t):
     '''fa_init : ID ASSIGN exp TO exp'''
-    t[0] = [t[1], t[3], t[5]]
     var = VarNode(('int', []), t[1], t[3], is_writeable = False)
+    var_decl = VarDeclNode(var)
+    t[0] = [var_decl, t[3], t[5]]
     variables.insert(t[1], var, t.lineno(1))
     breaks.inc()
 

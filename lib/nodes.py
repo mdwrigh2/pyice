@@ -18,7 +18,6 @@ className = ""
 breakLabels = []
 
 local_count = 0
-fields = False
 
 curr_proc = None
 
@@ -479,8 +478,8 @@ class BreakNode(object):
         return "(BREAK)"
 
     def jasmin(self):
-        l = breakLabels.pop()
-        return "goto %s" % l
+        l = breakLabels[-1]
+        return "goto %s\n" % l
 
 class ExitNode(object):
     def __str__(self):
@@ -490,14 +489,14 @@ class ExitNode(object):
         return "iconst_1\ninvokestatic java/lang/System/exit(I)V\n"
 
 class AssignNode(object):
-    def __init__(self, lnode, rnode, lineno):
+    def __init__(self, lnode, rnode, lineno, ignore_writeable = False):
         self.lnode = lnode
         self.rnode = rnode
         self.lineno = lineno
         if len(lnode.type[1]) > 0:
             raise TypeError(lineno, 'cannot assign to array types')
         if lnode.type == rnode.type:
-            if not self.lnode.is_writeable:
+            if not self.lnode.is_writeable and not ignore_writeable:
                 raise TypeError(lineno, 'variable is not writable')
         else:
             raise TypeError(lineno, lnode.name)
@@ -590,18 +589,50 @@ class DoNode(object):
     def __str__(self):
         return "(WHILE %s DO %s)" % (str(self.exp), str(self.then))
 
+    def jasmin(self):
+        l = label.next()
+        l2 = label.next()
+        breakLabels.append(l2)
+        string = "%s:\n" % l
+        string += self.exp.jasmin()
+        string += "ifeq %s\n" % l2
+        string += self.then.jasmin()
+        string += "goto %s\n" % l
+        string += "%s:\n" % l2
+        breakLabels.pop()
+        return string
+
 class ForNode(object):
-    def __init__(self,init_name, initial, final, stms = None, lineno = 0):
+    def __init__(self,init_var, initial, final, stms = None, lineno = 0):
         if initial.type == ('int', []) and final.type == ('int', []):
-            self.init_name = init_name
+            self.init_var = init_var
             self.initial = initial
             self.final = final
             self.stms = stms
+            self.lineno = lineno
         else:
             raise TypeError(lineno, 'fa')
 
     def __str__(self):
         return "(FOR %s FROM %s TO %s DO %s)" % (self.init_name, self.initial, self.final, self.stms)
+
+    def jasmin(self):
+        l = label.next()
+        end = label.next()
+        breakLabels.append(end)
+        string = self.init_var.jasmin()
+        string += AssignNode(self.init_var.var, self.initial, self.lineno, ignore_writeable = True).jasmin()
+        string += "%s:\n" % l
+        string += self.init_var.var.jasmin()
+        string += self.final.jasmin()
+        string += "isub\n"
+        string += "ifgt %s\n" % end
+        string += self.stms.jasmin()
+        string += "iinc %d 1\n" % self.init_var.var.local
+        string += "goto %s\n" % l
+        string += "%s:\n" % end
+        breakLabels.pop()
+        return string
 
 class DecNode(object):
     def __init__(self, lineno):
@@ -787,17 +818,19 @@ class ProgramNode(object):
         # and lets me output variables and then functions, which is necessary
         # according to the jasmin spec
         global className
-        global fields
+        global curr_proc
         className = cn
         # string = initial values, setup main
         string = init_jasmin(cn, variables)
         for f in functions.values():
             string += "%s \n ; END BEGINS \n" % f.jasmin()
         string += " .method public static main([Ljava/lang/String;)V \n.limit stack 100\n.limit locals 100\n"
+        curr_proc = "main"
         for v in variables.values():
             string += v.jasmin_init()
         if self.stms:
             string += "%s \n" % self.stms.jasmin()
         string += "return\n"
         string += ".end method\n"
+        curr_proc = None
         return string

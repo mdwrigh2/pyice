@@ -1,11 +1,20 @@
+var w : int;
 var x : int[2];
 var y : string[2][2];
 var z : string;
 type a = int[2];
 
 
-proc stuff(item : a)
-  write "stuff";
+proc stuff(item : int) : int
+  write item;
+  if item >= 5 ->
+    stuff := 5;
+    return;
+  [] else ->
+    stuff := stuff(item+1);
+    return;
+  fi
+
 end
 
 proc ret_true() : bool
@@ -17,23 +26,23 @@ end
 x[0] := 5;
 x[1] := 6;
 
-write "Testing Comparison Operators";
+write "TESTING Comparison Operators";
 write "";
-write "Testing Equals:";
+write "TESTING Equals:";
 write " Should be false";
 write ?(x[0] = x[1]);
 x[1] := 5;
 write " Should be true";
 write ?(x[0] = x[1]);
 
-write "Testing Not Equals";
+write "TESTING Not Equals";
 write " Should be false";
 write ?(x[0] != x[1]);
 write " Should be true";
 x[1] := 4;
 write ?(x[0] != x[1]);
 
-write "Testing <";
+write "TESTING <";
 write " Should be false";
 write ?(x[0] < x[1]);
 write " Should be false";
@@ -43,7 +52,7 @@ write " Should be true";
 x[1] := 6;
 write ?(x[0] < x[1]);
 
-write "Testing <=";
+write "TESTING <=";
 write " Should be true";
 write ?(x[0] <= x[1]);
 write " Should be true";
@@ -53,7 +62,7 @@ write " Should be false";
 x[1] := 4;
 write ?(x[0] <= x[1]);
 
-write "Testing >=";
+write "TESTING >=";
 write " Should be true";
 write ?(x[0] >= x[1]);
 write " Should be true";
@@ -63,7 +72,7 @@ write " Should be false";
 x[1] := 6;
 write ?(x[0] >= x[1]);
 
-write "Testing >";
+write "TESTING >";
 write " Should be false";
 write ?(x[0] > x[1]);
 write " Should be false";
@@ -73,31 +82,31 @@ write " Should be true";
 x[1] := 4;
 write ?(x[0] > x[1]);
 
-write "Testing %";
+write "TESTING %";
 write " Should be 1";
 write 5%-2;
 write " Should be -1";
 write -5%-2;
 
-write "Testing +";
+write "TESTING +";
 write " Should be 3";
 write 1+2;
 write " Should be -3";
 write -1+-2;
 
-write "Testing -";
+write "TESTING -";
 write " Should be 3";
 write 6-3;
 write " Should be -6";
 write -3-3;
 
-write "Testing *";
+write "TESTING *";
 write " Should be 6";
 write 3*2;
 write " Should be -6";
 write 3*-2;
 
-write "Testing /";
+write "TESTING /";
 write " Should be 1";
 write 5/4;
 write " Should be 2";
@@ -107,7 +116,7 @@ write -5/4;
 write " Should be -2";
 write -8/4;
 
-write "Testing Boolean Or (+)";
+write "TESTING Boolean Or (+)";
 write " Should be true";
 write ?(true + ret_true());
 write " Should be true and print 1";
@@ -115,7 +124,7 @@ write ?(false + ret_true());
 write " Should be false";
 write ?(false + false);
 
-write "Testing Boolean And (+)";
+write "TESTING Boolean And (+)";
 write " Should be true";
 write ?(true * true);
 write " Should be false";
@@ -129,7 +138,7 @@ write ?(true * ret_true());
 write "Should be false";
 write ?(false * ret_true());
 
-write "Testing If";
+write "TESTING If";
 write " Should print 1";
 
 if x[0] = 5 ->
@@ -157,4 +166,61 @@ if x[0] = 6 ->
   write 2;
 fi
 
+write "TESTING do";
+write " Should print nothing:";
+do false ->
+  write 1;
+od
 
+w := 1;
+write " Should print 1-5";
+do w < 6 ->
+  write w;
+  w := w+1;
+od
+
+w:= 1;
+write " Should print 1-3 (testing break statement)";
+do w < 6 ->
+  write w;
+  if w = 3 ->
+    break;
+  fi
+  w := w+1;
+od
+
+
+write "TESTING fa";
+write " Should print 1, once:";
+fa i:= 1 to 1 ->
+  write i;
+af
+
+write " Should print 1-5:";
+fa i:= 1 to 5 ->
+  write i;
+af
+
+write " Should print 1-3 (testing break statement):";
+fa i:= 1 to 5 ->
+  write i;
+  if i = 3 ->
+    break;
+  fi
+af
+
+write "TESTING nested breaks";
+write "Should print 1 then 2";
+fa i := 1 to 5 ->
+  write i;
+  fa j := 2 to 5 ->
+    write j;
+    break;
+  af
+  break;
+af
+
+write "TESTING recursive function calls";
+write "Should print 1 - 5, and then 5";
+w := stuff(1);
+write w;

@@ -3,6 +3,7 @@
 .field public static y [[Ljava/lang/String;
 .field public static x [I
 .field public static z Ljava/lang/String;
+.field public static w I
 
 .method public ()V 
     aload_0 
@@ -78,14 +79,39 @@ ireturn
 .end method
  
  ; END BEGINS 
-.method public static stuff([I)V
+.method public static stuff(I)I
 .limit stack 100
 .limit locals 5
-ldc "stuff"
-invokestatic test/print(Ljava/lang/String;)V
+iload 0
+invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-return
+iload 0
+ldc 5
+isub
+iflt label2
+ldc 1
+goto label3
+label2:
+ldc 0
+label3:
+ifeq label0
+ldc 5
+istore 1
+iload 1
+ireturn
+goto label1
+label0:
+iload 0
+ldc 1
+iadd
+invokestatic test/stuff(I)I
+istore 1
+iload 1
+ireturn
+label1:
+iload 1
+ireturn
 .end method
  
  ; END BEGINS 
@@ -101,6 +127,8 @@ multianewarray [I 1
 putstatic test/x [I
 aconst_null
 putstatic test/z Ljava/lang/String;
+ldc 0
+putstatic test/w I
 getstatic test/x [I
 ldc 0
 ldc 5
@@ -109,7 +137,7 @@ getstatic test/x [I
 ldc 1
 ldc 6
 iastore
-ldc "Testing Comparison Operators"
+ldc "TESTING Comparison Operators"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -117,41 +145,11 @@ ldc ""
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing Equals:"
+ldc "TESTING Equals:"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc " Should be false"
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
-getstatic test/x [I
-ldc 0
-iaload
-getstatic test/x [I
-ldc 1
-iaload
-isub
-ifne label0
-ldc 1
-goto label1
-label0:
-ldc 0
-label1:
-ifne label2
-ldc 0
-goto label3
-label2:
-ldc 1
-label3:
-invokestatic test/print(I)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
-getstatic test/x [I
-ldc 1
-ldc 5
-iastore
-ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -177,11 +175,11 @@ label7:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing Not Equals"
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be false"
+getstatic test/x [I
+ldc 1
+ldc 5
+iastore
+ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -192,7 +190,7 @@ getstatic test/x [I
 ldc 1
 iaload
 isub
-ifeq label8
+ifne label8
 ldc 1
 goto label9
 label8:
@@ -207,14 +205,14 @@ label11:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be true"
+ldc "TESTING Not Equals"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-getstatic test/x [I
-ldc 1
-ldc 4
-iastore
+ldc " Should be false"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
 getstatic test/x [I
 ldc 0
 iaload
@@ -237,14 +235,14 @@ label15:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing <"
+ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be false"
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
+getstatic test/x [I
+ldc 1
+ldc 4
+iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -252,7 +250,7 @@ getstatic test/x [I
 ldc 1
 iaload
 isub
-ifge label16
+ifeq label16
 ldc 1
 goto label17
 label16:
@@ -267,14 +265,14 @@ label19:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
+ldc "TESTING <"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
 ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-getstatic test/x [I
-ldc 1
-ldc 5
-iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -297,13 +295,13 @@ label23:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be true"
+ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 getstatic test/x [I
 ldc 1
-ldc 6
+ldc 5
 iastore
 getstatic test/x [I
 ldc 0
@@ -327,14 +325,14 @@ label27:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing <="
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
 ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
+getstatic test/x [I
+ldc 1
+ldc 6
+iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -342,7 +340,7 @@ getstatic test/x [I
 ldc 1
 iaload
 isub
-ifgt label28
+ifge label28
 ldc 1
 goto label29
 label28:
@@ -357,14 +355,14 @@ label31:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
+ldc "TESTING <="
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
 ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-getstatic test/x [I
-ldc 1
-ldc 5
-iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -387,13 +385,13 @@ label35:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be false"
+ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 getstatic test/x [I
 ldc 1
-ldc 4
+ldc 5
 iastore
 getstatic test/x [I
 ldc 0
@@ -417,14 +415,14 @@ label39:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing >="
+ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be true"
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
+getstatic test/x [I
+ldc 1
+ldc 4
+iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -432,7 +430,7 @@ getstatic test/x [I
 ldc 1
 iaload
 isub
-iflt label40
+ifgt label40
 ldc 1
 goto label41
 label40:
@@ -447,14 +445,14 @@ label43:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
+ldc "TESTING >="
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
 ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-getstatic test/x [I
-ldc 1
-ldc 5
-iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -477,13 +475,13 @@ label47:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be false"
+ldc " Should be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 getstatic test/x [I
 ldc 1
-ldc 6
+ldc 5
 iastore
 getstatic test/x [I
 ldc 0
@@ -507,14 +505,14 @@ label51:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing >"
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
 ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
+getstatic test/x [I
+ldc 1
+ldc 6
+iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -522,7 +520,7 @@ getstatic test/x [I
 ldc 1
 iaload
 isub
-ifle label52
+iflt label52
 ldc 1
 goto label53
 label52:
@@ -537,14 +535,14 @@ label55:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
+ldc "TESTING >"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
 ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-getstatic test/x [I
-ldc 1
-ldc 5
-iastore
 getstatic test/x [I
 ldc 0
 iaload
@@ -567,13 +565,13 @@ label59:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be true"
+ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 getstatic test/x [I
 ldc 1
-ldc 4
+ldc 5
 iastore
 getstatic test/x [I
 ldc 0
@@ -597,7 +595,37 @@ label63:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing %"
+ldc " Should be true"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+getstatic test/x [I
+ldc 1
+ldc 4
+iastore
+getstatic test/x [I
+ldc 0
+iaload
+getstatic test/x [I
+ldc 1
+iaload
+isub
+ifle label64
+ldc 1
+goto label65
+label64:
+ldc 0
+label65:
+ifne label66
+ldc 0
+goto label67
+label66:
+ldc 1
+label67:
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "TESTING %"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -624,7 +652,7 @@ irem
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing +"
+ldc "TESTING +"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -650,7 +678,7 @@ iadd
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing -"
+ldc "TESTING -"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -675,7 +703,7 @@ isub
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing *"
+ldc "TESTING *"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -700,7 +728,7 @@ imul
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing /"
+ldc "TESTING /"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -746,7 +774,7 @@ idiv
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing Boolean Or (+)"
+ldc "TESTING Boolean Or (+)"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -755,26 +783,6 @@ invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 1
-ifne label64
-invokestatic test/ret_true()I
-goto label65
-label64:
-ldc 1
-label65:
-ifne label66
-ldc 0
-goto label67
-label66:
-ldc 1
-label67:
-invokestatic test/print(I)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be true and print 1"
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
-ldc 0
 ifne label68
 invokestatic test/ret_true()I
 goto label69
@@ -790,13 +798,13 @@ label71:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be false"
+ldc " Should be true and print 1"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 0
 ifne label72
-ldc 0
+invokestatic test/ret_true()I
 goto label73
 label72:
 ldc 1
@@ -810,20 +818,16 @@ label75:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing Boolean And (+)"
+ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be true"
-invokestatic test/print(Ljava/lang/String;)V
-ldc "\n"
-invokestatic test/print(Ljava/lang/String;)V
-ldc 1
-ifeq label76
-ldc 1
+ldc 0
+ifne label76
+ldc 0
 goto label77
 label76:
-ldc 0
+ldc 1
 label77:
 ifne label78
 ldc 0
@@ -834,11 +838,15 @@ label79:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc " Should be false"
+ldc "TESTING Boolean And (+)"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc 0
+ldc " Should be true"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 1
 ifeq label80
 ldc 1
 goto label81
@@ -858,9 +866,9 @@ ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc 1
-ifeq label84
 ldc 0
+ifeq label84
+ldc 1
 goto label85
 label84:
 ldc 0
@@ -878,7 +886,7 @@ ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc 0
+ldc 1
 ifeq label88
 ldc 0
 goto label89
@@ -894,13 +902,13 @@ label91:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Should print 1 and be true"
+ldc " Should be false"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc 1
+ldc 0
 ifeq label92
-invokestatic test/ret_true()I
+ldc 0
 goto label93
 label92:
 ldc 0
@@ -914,11 +922,11 @@ label95:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Should be false"
+ldc "Should print 1 and be true"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc 0
+ldc 1
 ifeq label96
 invokestatic test/ret_true()I
 goto label97
@@ -934,7 +942,27 @@ label99:
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-ldc "Testing If"
+ldc "Should be false"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 0
+ifeq label100
+invokestatic test/ret_true()I
+goto label101
+label100:
+ldc 0
+label101:
+ifne label102
+ldc 0
+goto label103
+label102:
+ldc 1
+label103:
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "TESTING If"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
@@ -947,20 +975,20 @@ ldc 0
 iaload
 ldc 5
 isub
-ifne label102
+ifne label106
 ldc 1
-goto label103
-label102:
+goto label107
+label106:
 ldc 0
-label103:
-ifeq label100
+label107:
+ifeq label104
 ldc 1
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-goto label101
-label100:
-label101:
+goto label105
+label104:
+label105:
 ; NULL
 ldc " Should print 2"
 invokestatic test/print(Ljava/lang/String;)V
@@ -971,42 +999,42 @@ ldc 0
 iaload
 ldc 6
 isub
-ifne label106
+ifne label110
 ldc 1
-goto label107
-label106:
+goto label111
+label110:
 ldc 0
-label107:
-ifeq label104
+label111:
+ifeq label108
 ldc 0
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-goto label105
-label104:
+goto label109
+label108:
 getstatic test/x [I
 ldc 0
 iaload
 ldc 7
 isub
-ifne label109
+ifne label113
 ldc 1
-goto label110
-label109:
+goto label114
+label113:
 ldc 0
-label110:
-ifeq label108
+label114:
+ifeq label112
 ldc 1
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-goto label105
-label108:
+goto label109
+label112:
 ldc 2
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-label105:
+label109:
 ldc " Should print 3"
 invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
@@ -1016,60 +1044,280 @@ ldc 0
 iaload
 ldc 6
 isub
-ifne label113
+ifne label117
 ldc 1
-goto label114
-label113:
+goto label118
+label117:
 ldc 0
-label114:
-ifeq label111
+label118:
+ifeq label115
 ldc 0
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-goto label112
-label111:
+goto label116
+label115:
 getstatic test/x [I
 ldc 0
 iaload
 ldc 7
 isub
-ifne label116
+ifne label120
 ldc 1
-goto label117
-label116:
+goto label121
+label120:
 ldc 0
-label117:
-ifeq label115
+label121:
+ifeq label119
 ldc 1
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-goto label112
-label115:
+goto label116
+label119:
 getstatic test/x [I
 ldc 0
 iaload
 ldc 5
 isub
-ifne label119
+ifne label123
 ldc 1
-goto label120
-label119:
+goto label124
+label123:
 ldc 0
-label120:
-ifeq label118
+label124:
+ifeq label122
 ldc 3
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-goto label112
-label118:
+goto label116
+label122:
 ldc 2
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-label112:
+label116:
+ldc "TESTING do"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc " Should print nothing:"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+label125:
+ldc 0
+ifeq label126
+ldc 1
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+goto label125
+label126:
+ldc 1
+putstatic test/w I
+ldc " Should print 1-5"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+label127:
+getstatic test/w I
+ldc 6
+isub
+ifge label129
+ldc 1
+goto label130
+label129:
+ldc 0
+label130:
+ifeq label128
+getstatic test/w I
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+getstatic test/w I
+ldc 1
+iadd
+putstatic test/w I
+goto label127
+label128:
+ldc 1
+putstatic test/w I
+ldc " Should print 1-3 (testing break statement)"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+label131:
+getstatic test/w I
+ldc 6
+isub
+ifge label133
+ldc 1
+goto label134
+label133:
+ldc 0
+label134:
+ifeq label132
+getstatic test/w I
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+getstatic test/w I
+ldc 3
+isub
+ifne label137
+ldc 1
+goto label138
+label137:
+ldc 0
+label138:
+ifeq label135
+goto label132
+goto label136
+label135:
+label136:
+getstatic test/w I
+ldc 1
+iadd
+putstatic test/w I
+goto label131
+label132:
+ldc "TESTING fa"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc " Should print 1, once:"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 0
+istore 2
+ldc 1
+istore 2
+label139:
+iload 2
+ldc 1
+isub
+ifgt label140
+iload 2
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+iinc 2 1
+goto label139
+label140:
+ldc " Should print 1-5:"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 0
+istore 3
+ldc 1
+istore 3
+label141:
+iload 3
+ldc 5
+isub
+ifgt label142
+iload 3
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+iinc 3 1
+goto label141
+label142:
+ldc " Should print 1-3 (testing break statement):"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 0
+istore 4
+ldc 1
+istore 4
+label143:
+iload 4
+ldc 5
+isub
+ifgt label144
+iload 4
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+iload 4
+ldc 3
+isub
+ifne label147
+ldc 1
+goto label148
+label147:
+ldc 0
+label148:
+ifeq label145
+goto label144
+goto label146
+label145:
+label146:
+iinc 4 1
+goto label143
+label144:
+ldc "TESTING nested breaks"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "Should print 1 then 2"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 0
+istore 5
+ldc 1
+istore 5
+label149:
+iload 5
+ldc 5
+isub
+ifgt label150
+iload 5
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 0
+istore 6
+ldc 2
+istore 6
+label151:
+iload 6
+ldc 5
+isub
+ifgt label152
+iload 6
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+goto label152
+iinc 6 1
+goto label151
+label152:
+goto label150
+iinc 5 1
+goto label149
+label150:
+ldc "TESTING recursive function calls"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "Should print 1 - 5, and then 5"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc 1
+invokestatic test/stuff(I)I
+putstatic test/w I
+getstatic test/w I
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
  
 return
 .end method
