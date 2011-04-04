@@ -19,7 +19,7 @@ Example:
 Given: An ice9 file foo.9
 Commands:
 ./ice9 foo.j < foo.9
-java -jar jamsmin/jasmin.jar foo.j
+java -jar jasmin/jasmin.jar foo.j
 java foo
 
 OR
