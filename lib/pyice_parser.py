@@ -494,6 +494,7 @@ def p_declist_empty(t):
 def p_declistx(t):
     '''declistx : idlist COLON typeid'''
     dec = DecNode(t.lineno(3))
+    # This is reversed because I'm prepending the var nodes
     for i in reversed(t[1]):
         type = types.lookup(t[3], t.lineno(1))
         var = VarNode(types.lookup(t[3], t.lineno(2)),i)
@@ -506,6 +507,7 @@ def p_declistx(t):
 def p_declistx_extension(t):
     '''declistx : idlist COLON typeid COMMA declistx'''
     dec = t[5]
+    # This is reversed because I'm prepending the var nodes
     for i in reversed(t[1]):
         var = VarNode(types.lookup(t[3], t.lineno(2)),i)
         variables.insert(i, var, t.lineno(2))
