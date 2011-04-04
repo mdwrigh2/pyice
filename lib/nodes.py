@@ -10,18 +10,6 @@ class LabelGenerator(object):
         self.i += 1
         return string
 
-# Constants necessary for jasmin output
-
-label = LabelGenerator()
-className = ""
-
-breakLabels = []
-
-local_count = 0
-
-curr_proc = None
-
-# End Constants
 
 class TypeError(Exception):
     def __init__(self, lineno, message):
@@ -34,6 +22,11 @@ class LitNode(object):
     def __init__(self, val, type, lineno):
         self.val = val
         self.type = type
+        if type == ('string', []):
+            if self.val[0] == "'":
+                self.val = self.val.replace('"', r'\"')
+                self.val = self.val.replace("'", '"')
+
 
     def __str__(self):
         return "(%s)" % (str(self.val))
@@ -389,7 +382,7 @@ class VarNode(object):
             elif self.type == ('bool', []):
                 string = "iload %i\n" % self.local
             else:
-                raise TypeError(0, 'expected a basic type -- jasmin error')
+                string = "aload %i\n" % self.local
         return string
 
     def jasmin_set(self):
@@ -403,7 +396,7 @@ class VarNode(object):
             elif self.type == ('bool', []):
                 string = "istore %i\n" % self.local
             else:
-                raise TypeError(0, 'expected a basic type -- jasmin error')
+                string = "astore %i\n" % self.local
         return string
 
     def jasmin_reference(self):
@@ -435,7 +428,7 @@ class VarDeclNode(VarNode):
                 else:
                     string = ""
                     for i in self.var.type[1]:
-                        string += "bipush %d\n" % i
+                        string += "ldc %d\n" % i
                     string += "multianewarray %s %d\n" % (jasmin_types(self.var.type), len(self.var.type[1]))
                 string += "astore %d\n" % (s)
             self.var.local = s
@@ -450,7 +443,7 @@ class VarDeclNode(VarNode):
             else:
                 string = ""
                 for i in self.var.type[1]:
-                    string += "bipush %d\n" % i
+                    string += "ldc %d\n" % i
                 string += "multianewarray %s %d\n" % (jasmin_types(self.var.type), len(self.var.type[1]))
 
         string += "putstatic %s/%s %s\n" % (className, self.var.name, jasmin_types(self.var.type))
@@ -573,6 +566,10 @@ class StatementsNode(object):
         string = ""
         for s in self.stmts:
             string += s.jasmin()
+            for e in expressions:
+                if isinstance(s, e):
+                    string += "pop\n"
+                    break
 
         return string
 
@@ -627,7 +624,8 @@ class ForNode(object):
         string += self.final.jasmin()
         string += "isub\n"
         string += "ifgt %s\n" % end
-        string += self.stms.jasmin()
+        if self.stms:
+            string += self.stms.jasmin()
         string += "iinc %d 1\n" % self.init_var.var.local
         string += "goto %s\n" % l
         string += "%s:\n" % end
@@ -701,10 +699,12 @@ class ProcNode(object):
         local_count = 0
         self.declist.setup()
         if self.ret_var:
-            self.ret_var.local = local_count
-        local_count += 1
+            jas_ret = VarDeclNode(self.ret_var).jasmin()
+        else:
+            jas_ret = ""
         string = ".method public static %s(%s)%s\n" % (self.name, self.declist.jasmin_types(), jasmin_types(self.ret))
         string += ".limit stack 100\n"
+        string += jas_ret
         jas_typevars = self.typevars.jasmin()
         jas_stms = self.stmts.jasmin()
         string += ".limit locals %d\n" % (local_count+len(self.declist)+2) # declist become the first n local variables, and 1 for padding
@@ -834,3 +834,17 @@ class ProgramNode(object):
         string += ".end method\n"
         curr_proc = None
         return string
+
+# Constants necessary for jasmin output
+
+label = LabelGenerator()
+className = ""
+
+breakLabels = []
+
+local_count = 0
+
+curr_proc = None
+
+expressions = [LitNode, ReadNode, CallNode, VarNode, UnaryOpNode, BinOpNode] 
+# End Constants

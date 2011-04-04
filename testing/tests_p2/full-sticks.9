@@ -57,6 +57,7 @@ proc mypick(n: int) : int
       mypick := (n-1)%4;
       if mypick = 0 -> mypick := 1; fi
    fi
+   write mypick;
 end
 
 writes "Do you want instructions? 0=no / 1= yes: ";

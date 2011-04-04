@@ -5,6 +5,7 @@ import lib.yacc as yacc
 import lib.pyice_parser
 
 import sys
+import os
 from optparse import OptionParser
 
 from lib.pyice_parser import ParseError
@@ -42,18 +43,17 @@ class Compiler:
             sys.exit(100)
 
 
-    def compile_file(self, filename, ast):
-        source = open(filename, 'r')
-        code = source.read()
-        source.close
-        self._parse(code)
-        if ast:
-            print self.program
-        else:
-            print self.program.jasmin('test', lib.pyice_parser.var_decs, lib.pyice_parser.functions)
-    
-    def compile_input(self, inputs):
+    def compile_file(self, inputs, filename, ast):
+        out = open(filename, "w")
         self._parse(inputs)
+        path, extension = os.path.splitext(filename)
+        classname = os.path.split(path)[1]
+        if ast:
+            out.write(self.program)
+        else:
+            out.write(self.program.jasmin(classname, lib.pyice_parser.var_decs, lib.pyice_parser.functions))
+        out.close()
+    
 
 
 
@@ -66,11 +66,7 @@ def start_compiler():
     files = args
     
 
-    if files:
-        for filename in files:
-            Compiler().compile_file(filename, options.ast)
-    else:
-        Compiler().compile_input(sys.stdin.read())
+    Compiler().compile_file(sys.stdin.read(), args[0], options.ast)
 
 
 if __name__ == '__main__':
