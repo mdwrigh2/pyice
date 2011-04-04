@@ -117,7 +117,7 @@ def p_statement_03(t):
 def p_statement_04(t):
     '''stm : SEMI'''
     # Null statement
-    pass
+    t[0] = NullNode()
 
 def p_statement_05(t):
     '''stm : WRITE exp SEMI

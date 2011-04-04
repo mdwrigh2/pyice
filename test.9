@@ -1,0 +1,160 @@
+var x : int[2];
+var y : string[2][2];
+var z : string;
+type a = int[2];
+
+
+proc stuff(item : a)
+  write "stuff";
+end
+
+proc ret_true() : bool
+    write 1;
+    ret_true := true;
+end
+
+
+x[0] := 5;
+x[1] := 6;
+
+write "Testing Comparison Operators";
+write "";
+write "Testing Equals:";
+write " Should be false";
+write ?(x[0] = x[1]);
+x[1] := 5;
+write " Should be true";
+write ?(x[0] = x[1]);
+
+write "Testing Not Equals";
+write " Should be false";
+write ?(x[0] != x[1]);
+write " Should be true";
+x[1] := 4;
+write ?(x[0] != x[1]);
+
+write "Testing <";
+write " Should be false";
+write ?(x[0] < x[1]);
+write " Should be false";
+x[1] := 5;
+write ?(x[0] < x[1]);
+write " Should be true";
+x[1] := 6;
+write ?(x[0] < x[1]);
+
+write "Testing <=";
+write " Should be true";
+write ?(x[0] <= x[1]);
+write " Should be true";
+x[1] := 5;
+write ?(x[0] <= x[1]);
+write " Should be false";
+x[1] := 4;
+write ?(x[0] <= x[1]);
+
+write "Testing >=";
+write " Should be true";
+write ?(x[0] >= x[1]);
+write " Should be true";
+x[1] := 5;
+write ?(x[0] >= x[1]);
+write " Should be false";
+x[1] := 6;
+write ?(x[0] >= x[1]);
+
+write "Testing >";
+write " Should be false";
+write ?(x[0] > x[1]);
+write " Should be false";
+x[1] := 5;
+write ?(x[0] > x[1]);
+write " Should be true";
+x[1] := 4;
+write ?(x[0] > x[1]);
+
+write "Testing %";
+write " Should be 1";
+write 5%-2;
+write " Should be -1";
+write -5%-2;
+
+write "Testing +";
+write " Should be 3";
+write 1+2;
+write " Should be -3";
+write -1+-2;
+
+write "Testing -";
+write " Should be 3";
+write 6-3;
+write " Should be -6";
+write -3-3;
+
+write "Testing *";
+write " Should be 6";
+write 3*2;
+write " Should be -6";
+write 3*-2;
+
+write "Testing /";
+write " Should be 1";
+write 5/4;
+write " Should be 2";
+write 8/4;
+write " Should be -1";
+write -5/4;
+write " Should be -2";
+write -8/4;
+
+write "Testing Boolean Or (+)";
+write " Should be true";
+write ?(true + ret_true());
+write " Should be true and print 1";
+write ?(false + ret_true());
+write " Should be false";
+write ?(false + false);
+
+write "Testing Boolean And (+)";
+write " Should be true";
+write ?(true * true);
+write " Should be false";
+write ?(false * true);
+write " Should be false";
+write ?(true * false);
+write " Should be false";
+write ?(false * false);
+write "Should print 1 and be true";
+write ?(true * ret_true());
+write "Should be false";
+write ?(false * ret_true());
+
+write "Testing If";
+write " Should print 1";
+
+if x[0] = 5 ->
+  write 1;
+fi;
+
+write " Should print 2";
+if x[0] = 6 ->
+  write 0;
+[] x[0] = 7 ->
+  write 1;
+[] else ->
+  write 2;
+fi
+
+write " Should print 3";
+
+if x[0] = 6 ->
+  write 0;
+[] x[0] = 7 ->
+  write 1;
+[] x[0] = 5 ->
+  write 3;
+[] else ->
+  write 2;
+fi
+
+

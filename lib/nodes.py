@@ -141,16 +141,102 @@ class BinOpNode(object):
 
     def jasmin(self):
         
-        string = self.lnode.jasmin()
-        string += self.rnode.jasmin()
-        if self.op == "+":
-            string += "iadd\n"
-        if self.op == "-":
-            string += "isub\n"
-        if self.op == "*":
-            string += "imul\n"
-        if self.op == "/":
-            string += "idiv"
+        if self.lnode.type == ('bool', []):
+            string = self.lnode.jasmin()
+            if self.op == "+":
+                l = label.next()
+                l2 = label.next()
+                string += "ifne %s\n" % l
+                string += self.rnode.jasmin()
+                string += "goto %s\n" % l2
+                string += "%s:\n" % l
+                string += "ldc 1\n"
+                string += "%s:\n" % l2
+            elif self.op == "*":
+                l = label.next()
+                l2 = label.next()
+                string += "ifeq %s\n" % l
+                string += self.rnode.jasmin()
+                string += "goto %s\n" % l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+        else:
+            string = self.lnode.jasmin()
+            string += self.rnode.jasmin()
+            if self.op == "+":
+                string += "iadd\n"
+            if self.op == "-":
+                string += "isub\n"
+            if self.op == "*":
+                string += "imul\n"
+            if self.op == "/":
+                string += "idiv\n"
+            if self.op == "%":
+                string += "irem\n"
+            if self.op == "=":
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "ifne %s\n"  % l
+                string += "ldc 1\n"
+                string += "goto %s\n" % l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+            if self.op == "!=":
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "ifeq %s\n" % l
+                string += "ldc 1\n"
+                string += "goto %s\n" %l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+            if self.op == "<":
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "ifge %s\n" % l
+                string += "ldc 1\n"
+                string += "goto %s\n" %l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+            if self.op == ">":
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "ifle %s\n" % l
+                string += "ldc 1\n"
+                string += "goto %s\n" %l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+            if self.op == ">=":
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "iflt %s\n" % l
+                string += "ldc 1\n"
+                string += "goto %s\n" %l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+            if self.op == "<=":
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "ifgt %s\n" % l
+                string += "ldc 1\n"
+                string += "goto %s\n" %l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+
+
+
 
         return string
 
@@ -392,6 +478,10 @@ class BreakNode(object):
     def __str__(self):
         return "(BREAK)"
 
+    def jasmin(self):
+        l = breakLabels.pop()
+        return "goto %s" % l
+
 class ExitNode(object):
     def __str__(self):
         return "(EXIT)"
@@ -447,7 +537,24 @@ class IfNode(object):
         return string
 
     def jasmin(self):
-        pass
+        l = label.next()
+        end = label.next()
+        string = self.cond.jasmin()
+        string += "ifeq %s\n" % l
+        string += self.then.jasmin()
+        string += "goto %s\n" % end
+        string += "%s:\n" % l
+        for e in self.elifs:
+            l = label.next()
+            string += e.cond.jasmin()
+            string += "ifeq %s\n" % l
+            string += e.then.jasmin()
+            string += "goto %s\n" % end
+            string += "%s:\n" % l
+        if self.els:
+            string += self.els.jasmin()
+        string += "%s:\n" % end
+        return string
         
 class StatementsNode(object):
     def __init__(self, stmt):
