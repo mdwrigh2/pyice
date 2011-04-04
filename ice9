@@ -64,15 +64,17 @@ class Compiler:
 
 
 def start_compiler():
-    parser = OptionParser()
+    parser = OptionParser("usage: %prog [options] filename")
     parser.add_option("-a", "--ast",
                       help="output the AST", action="store_true", dest="ast")
     parser.add_option("-c", "--compile",
-                      help="output the AST", action="store_true", dest="comp")
+                      help="compiles the output jasmin code with the bundled jasmin assembler", action="store_true", dest="comp")
 
     (options, args) = parser.parse_args()
     files = args
     
+    if len(sys.argv) < 2:
+        parser.error("Needs at least one argument")
 
     Compiler().compile_file(sys.stdin.read(), args[0], options)
 
