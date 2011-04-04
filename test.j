@@ -4,6 +4,7 @@
 .field public static x [I
 .field public static z Ljava/lang/String;
 .field public static w I
+.field public static v I
 
 .method public ()V 
     aload_0 
@@ -79,7 +80,7 @@ ireturn
 .end method
  
  ; END BEGINS 
-.method public static stuff(I)I
+.method public static recurse(I)I
 .limit stack 100
 .limit locals 5
 iload 0
@@ -105,12 +106,38 @@ label0:
 iload 0
 ldc 1
 iadd
-invokestatic test/stuff(I)I
+invokestatic test/recurse(I)I
 istore 1
 iload 1
 ireturn
 label1:
 iload 1
+ireturn
+.end method
+ 
+ ; END BEGINS 
+.method public static multiarg(IILjava/lang/String;Ljava/lang/String;)I
+.limit stack 100
+.limit locals 11
+iload 0
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+iload 1
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+aload 2
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+aload 3
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+iload 0
+istore 4
+iload 4
 ireturn
 .end method
  
@@ -129,6 +156,8 @@ aconst_null
 putstatic test/z Ljava/lang/String;
 ldc 0
 putstatic test/w I
+ldc 0
+putstatic test/v I
 getstatic test/x [I
 ldc 0
 ldc 5
@@ -1192,19 +1221,19 @@ invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 0
-istore 2
+istore 5
 ldc 1
-istore 2
+istore 5
 label139:
-iload 2
+iload 5
 ldc 1
 isub
 ifgt label140
-iload 2
+iload 5
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-iinc 2 1
+iinc 5 1
 goto label139
 label140:
 ldc " Should print 1-5:"
@@ -1212,19 +1241,19 @@ invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 0
-istore 3
+istore 6
 ldc 1
-istore 3
+istore 6
 label141:
-iload 3
+iload 6
 ldc 5
 isub
 ifgt label142
-iload 3
+iload 6
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-iinc 3 1
+iinc 6 1
 goto label141
 label142:
 ldc " Should print 1-3 (testing break statement):"
@@ -1232,19 +1261,19 @@ invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 0
-istore 4
+istore 7
 ldc 1
-istore 4
+istore 7
 label143:
-iload 4
+iload 7
 ldc 5
 isub
 ifgt label144
-iload 4
+iload 7
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
-iload 4
+iload 7
 ldc 3
 isub
 ifne label147
@@ -1258,7 +1287,7 @@ goto label144
 goto label146
 label145:
 label146:
-iinc 4 1
+iinc 7 1
 goto label143
 label144:
 ldc "TESTING nested breaks"
@@ -1270,37 +1299,37 @@ invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 0
-istore 5
+istore 8
 ldc 1
-istore 5
+istore 8
 label149:
-iload 5
+iload 8
 ldc 5
 isub
 ifgt label150
-iload 5
+iload 8
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 0
-istore 6
+istore 9
 ldc 2
-istore 6
+istore 9
 label151:
-iload 6
+iload 9
 ldc 5
 isub
 ifgt label152
-iload 6
+iload 9
 invokestatic test/print(I)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 goto label152
-iinc 6 1
+iinc 9 1
 goto label151
 label152:
 goto label150
-iinc 5 1
+iinc 8 1
 goto label149
 label150:
 ldc "TESTING recursive function calls"
@@ -1312,7 +1341,27 @@ invokestatic test/print(Ljava/lang/String;)V
 ldc "\n"
 invokestatic test/print(Ljava/lang/String;)V
 ldc 1
-invokestatic test/stuff(I)I
+invokestatic test/recurse(I)I
+putstatic test/w I
+getstatic test/w I
+invokestatic test/print(I)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "TESTING multiple argument function calls"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc " Should write 5, 6, foo, bar then 5"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "\n"
+invokestatic test/print(Ljava/lang/String;)V
+ldc "foo"
+putstatic test/z Ljava/lang/String;
+ldc 5
+ldc 6
+ldc "foo"
+ldc "bar"
+invokestatic test/multiarg(IILjava/lang/String;Ljava/lang/String;)I
 putstatic test/w I
 getstatic test/w I
 invokestatic test/print(I)V

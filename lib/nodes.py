@@ -463,7 +463,7 @@ class ReturnNode(object):
         return "(RETURN)"
 
     def jasmin(self):
-        if not curr_proc or not curr_proc.ret_var:
+        if not curr_proc or curr_proc == "main" or not curr_proc.ret_var:
             return "return\n"
         string = curr_proc.ret_var.jasmin()
         if curr_proc.ret == ('string', []):
@@ -639,8 +639,8 @@ class DecNode(object):
         self.lineno = lineno
         self.var_nodes = []
     
-    def append(self, var):
-        self.var_nodes.append(var)
+    def prepend(self, var):
+        self.var_nodes = [var] + self.var_nodes
 
     def __eq__(self, other):
         if len(self.var_nodes) != len(other.var_nodes):

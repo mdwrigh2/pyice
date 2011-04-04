@@ -1,3 +1,4 @@
+var v : int;
 var w : int;
 var x : int[2];
 var y : string[2][2];
@@ -5,17 +6,28 @@ var z : string;
 type a = int[2];
 
 
-proc stuff(item : int) : int
+proc recurse(item : int) : int
   write item;
   if item >= 5 ->
-    stuff := 5;
+    recurse := 5;
     return;
   [] else ->
-    stuff := stuff(item+1);
+    recurse := recurse(item+1);
     return;
   fi
 
 end
+
+proc multiarg(a,b : int, c,d : string) : int
+  write a;
+  write b;
+  write c;
+  write d;
+  multiarg := a;
+end
+
+
+
 
 proc ret_true() : bool
     write 1;
@@ -222,5 +234,11 @@ af
 
 write "TESTING recursive function calls";
 write "Should print 1 - 5, and then 5";
-w := stuff(1);
+w := recurse(1);
+write w;
+
+write "TESTING multiple argument function calls";
+write " Should write 5, 6, foo, bar then 5";
+z := "foo";
+w := multiarg(5, 6, "foo", "bar");
 write w;

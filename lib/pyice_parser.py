@@ -494,11 +494,11 @@ def p_declist_empty(t):
 def p_declistx(t):
     '''declistx : idlist COLON typeid'''
     dec = DecNode(t.lineno(3))
-    for i in t[1]:
+    for i in reversed(t[1]):
         type = types.lookup(t[3], t.lineno(1))
         var = VarNode(types.lookup(t[3], t.lineno(2)),i)
         variables.insert(i, var, t.lineno(2))
-        dec.append(var)
+        dec.prepend(var)
 
     t[0] = dec
 
@@ -506,10 +506,10 @@ def p_declistx(t):
 def p_declistx_extension(t):
     '''declistx : idlist COLON typeid COMMA declistx'''
     dec = t[5]
-    for i in t[1]:
+    for i in reversed(t[1]):
         var = VarNode(types.lookup(t[3], t.lineno(2)),i)
         variables.insert(i, var, t.lineno(2))
-        dec.append(var)
+        dec.prepend(var)
     t[0] = dec
 
 def p_declist_forward(t):
@@ -525,7 +525,7 @@ def p_declistx_forward(t):
     dec = DecNode(t.lineno(3))
     for i in t[1]:
         var = VarNode(types.lookup(t[3], t.lineno(2)),i)
-        dec.append(var)
+        dec.prepend(var)
 
     t[0] = dec
 
@@ -535,7 +535,7 @@ def p_declistx_forward_extension(t):
     dec = t[5]
     for i in t[1]:
         var = VarNode(types.lookup(t[3], t.lineno(2)),i)
-        dec.append(var)
+        dec.prepend(var)
     t[0] = dec
 
 def p_type(t):
