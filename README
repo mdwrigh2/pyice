@@ -3,12 +3,25 @@ Pyice is a compiler for the Ice9 language written in Python, using PLY.
 It's pronounced in one syllable, rhymes with mice (think pice, rather than pie-ice).
 
 USAGE
-./ice9 [files]
+./ice9 [options] filename < input
 
 Output:
-Nothing if compilation succeeds, otherwise an error message on stderr
+Writes the output jasmin assembly to the file. If run with the -c or --compile flag, it will also compile the output jasmin with the bundled jasmin compiler. If run with the -a or --ast option, it will alternatively print out the AST. All input is read from stdin.
 
 Requires:
 Python, versions 2.4.3 and 2.6.6 tested
 
 Most of the test cases were not created by myself, and all rights go out to their respective authors. Thank you all for contributing the test cases, I don't know what I would've done without them. If there are any issues with them being here, please contact me via GitHub, or at mdwrigh2@ncsu.edu.
+
+Also, Jasmin belongs to Jonathan Meyer and Daniel Reynaud. I claim no ownership or contribution to it, I'm merely a thankful user.
+
+Example:
+Given: An ice9 file foo.9
+Commands:
+./ice9 foo.j < foo.9
+java -jar jamsmin/jasmin.jar foo.j
+java foo
+
+OR
+./ice9 -c foo.j < foo.9
+java foo
