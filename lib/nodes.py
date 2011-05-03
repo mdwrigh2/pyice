@@ -153,6 +153,29 @@ class BinOpNode(object):
                 string += "%s:\n" % l
                 string += "ldc 0\n"
                 string += "%s:\n" % l2
+            elif self.op == "=":
+                string += self.rnode.jasmin()
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "ifne %s\n"  % l
+                string += "ldc 1\n"
+                string += "goto %s\n" % l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+            if self.op == "!=":
+                string += self.rnode.jasmin()
+                l = label.next()
+                l2 = label.next()
+                string += "isub\n"
+                string += "ifeq %s\n" % l
+                string += "ldc 1\n"
+                string += "goto %s\n" %l2
+                string += "%s:\n" % l
+                string += "ldc 0\n"
+                string += "%s:\n" % l2
+
         else:
             string = self.lnode.jasmin()
             string += self.rnode.jasmin()
