@@ -1,0 +1,42 @@
+proc h(depth: int)
+  var a : int;
+  a:=depth;
+  if (depth<20) -> h(depth+1); fi
+  writes "g(";
+  writes depth;
+  writes "): ";
+  write a;
+end
+
+
+proc g()
+  var a : int;
+  a:=0;
+  writes "g(): ";
+  write a;
+end
+
+proc f()
+  var a : int;
+  a :=10;
+  writes "f() start: a = ";
+  write a;
+  g();
+  writes "f() end: a = ";
+  write a;
+end
+
+var a: int;
+
+a:=7;
+writes "top start: a = ";
+write a;
+
+
+f();
+
+
+h(0);
+
+writes "top end: a = ";
+write a;

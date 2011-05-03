@@ -1,0 +1,10 @@
+type a = int;
+type b = a[2][2];
+var c: b;
+var sum: int;
+c[0][0] := 0;
+c[0][1] := 1;
+c[1][0] := 2;
+c[1][1] := 3;
+sum  := c[0][0] + c[0][1] + c[1][0] + c[1][1];
+write sum;

@@ -1,0 +1,46 @@
+var a: int;
+var b: int;
+var c: int;
+var d: int;
+a := 10;
+b := 20;
+c := 30;
+d := 20;
+
+if (b > a) ->
+	write "true";
+[] else ->
+	write "false";
+fi
+if (b < a + c) -> ## exp
+	write "true";
+[] else ->
+	write "false";
+fi
+if (c != a) ->  ## exp
+	write "true";
+[] else ->
+	write "false";
+fi
+if (c <= a) -> ## exp
+	write "true";
+[] else -> 
+	write "false";
+fi
+if ((c % a) >= b) -> ## exp
+	write "true";
+[] else ->
+	write "false";
+fi
+if ((c % a) > b) -> ## exp
+	write "true";
+[] else ->
+	write "false";
+fi
+
+write ? (b <= d);
+write ? (b >= 20);
+write ? (b = 20);
+write ? (b != 20);
+write ? (b < 20);
+write ? (b > d);

@@ -1,0 +1,10 @@
+proc a(key:int)
+	var i : int[100];
+	var j : int;
+	if (key = 0) ->
+		return;
+	fi
+	write key;
+	a(key-1);
+end
+a(10);

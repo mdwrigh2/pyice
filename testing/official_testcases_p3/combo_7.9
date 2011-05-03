@@ -1,0 +1,38 @@
+# Horner's method for evaluating an n-degree polynomial
+#
+# First read in the degree of the polynomial
+# Then read in coefficients a_0 thru a_n
+# Continuously read x and write p(x)
+#
+# Type ^C to terminate
+
+var deg: int;
+var a: int[5];		# allow allow up to 4-degree poly
+
+proc horner(x: int) : int
+  var h: int;
+  h := a[deg];
+
+  fa i := 1 to deg ->
+    h := h * x + a[deg-i];
+  af
+  horner := h;
+end
+
+writes "Input poly deg (<4): ";
+deg := read;
+if (deg < 0) + (deg > 4) -> write "Abort"; exit; fi
+
+fa i := 0 to deg ->
+  writes "a[";
+  writes i;
+  writes "] = ";
+  a[i] := read;
+af
+
+fa i := 1 to 5 ->
+##do true ->
+  writes "Now, input x: ";
+  write horner(read);
+##od
+af

@@ -1,0 +1,35 @@
+## two dimensions
+type mysinglearray = int[10];
+type mydoublearray = int[10][10];
+
+proc check(a: mysinglearray, b: mydoublearray)
+    var g: int;
+    g := 0;
+    fa i := 0 to 9 -> 
+        g := g + a[i]; 
+    af 
+    write g;
+ 
+    g := 0;
+    fa i := 0 to 9 -> 
+      fa j := 0 to 9 ->
+        g := g + b[i][j];
+      af
+    af 
+
+    write g;
+end
+
+var d: mysinglearray,
+    e: mydoublearray;
+
+fa i := 0 to 9 ->
+    d[i] := i;
+af
+fa i := 0 to 9 -> 
+  fa j := 0 to 9 ->
+    e[i][j] := i+j;
+  af
+af 
+
+check(d,e);

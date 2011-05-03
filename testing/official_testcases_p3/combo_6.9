@@ -1,0 +1,9 @@
+# recursive factorial
+
+proc f(i: int) : int
+  if i <=1 -> f := 1;
+  [] else -> f := i*f(i-1);
+  fi
+end
+
+write f(read);

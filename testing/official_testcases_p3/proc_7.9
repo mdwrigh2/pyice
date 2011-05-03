@@ -1,0 +1,32 @@
+type booltype = bool;
+
+proc g(a: booltype)
+  write ? a;
+end
+
+proc h(a: bool)
+  write ? a;
+end
+
+
+proc f(a: bool)
+  type int = bool;
+
+  var abool: int;
+
+  write ? a;
+
+  abool := a;
+
+   write ? abool;
+
+  g(abool);
+  h(abool);
+  h(a);
+end
+
+type myint = int;
+
+
+
+f(true);

@@ -1,0 +1,28 @@
+# sieve of Eratosthenese
+
+var primes: bool[1001];
+var n, j, k: int;
+
+writes "Input number between 1 and 1000: ";
+n := read;		# upper bound on array
+if (n < 0) + (n > 1000) -> write "n out of bounds"; exit; fi
+
+primes[0] := false;	# not used
+primes[1] := false;
+fa i := 2 to n -> primes[i] := true; af
+
+fa i := 2 to n/2 ->
+  j := i+i;
+  do j <= n ->
+    primes[j] := false;
+    j := j + i;
+  od
+af  
+
+writes "the primes up to ";
+writes n;
+write " are:";
+
+fa i := 0 to n ->
+  if primes[i] -> write i; fi
+af

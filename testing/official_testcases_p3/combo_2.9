@@ -1,0 +1,43 @@
+# quick sort
+
+var a: int[100];
+var n: int;
+
+proc pr() write "Sorted list:"; fa i := 0 to n -> write a[i]; af end
+
+proc qsort(lo, hi: int)
+  var pivot, tmp, l, h: int;
+
+  l := lo;
+  h := hi;
+  pivot := a[(lo+hi)/2];
+  do l < h ->
+    do pivot > a[l] -> l := l + 1; od
+    do pivot < a[h] -> h := h - 1; od
+    if l <= h ->
+      tmp := a[h];
+      a[h] := a[l];
+      a[l] := tmp;
+      l := l+1;
+      h := h-1;
+    fi
+  od
+
+  if lo < h -> qsort(lo, h); fi
+  if l < hi -> qsort(l, hi); fi
+end
+
+write "Input length of array (1-100):";
+n := read;
+if (n < 1) + (n > 100) -> write "wrong"; exit; fi
+n := n-1;	# set n to largest valid array reference
+
+fa i := 0 to n ->
+  writes "Input ";
+  writes i+1;
+  writes ": ";
+  a[i] := read;
+af
+
+qsort(0,n);
+pr();

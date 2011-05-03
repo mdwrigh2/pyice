@@ -1,0 +1,13 @@
+proc foo(n: int) : int
+        foo := n * n;
+end
+var a: int;
+var s: string;
+var c: int;
+a := 10;
+c := 20;
+s := "30";
+write foo(a); ## proc
+write foo(a) + 1; ## proc
+write foo(a) + ? true; ## proc
+write s; ## string literal

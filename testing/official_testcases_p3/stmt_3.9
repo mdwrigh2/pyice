@@ -1,0 +1,29 @@
+#if tests
+var a, b, result: int;
+
+a := 100;
+b := 3;
+result := 0;
+
+write result;
+if a > b -> result := a*b; fi
+write result;
+
+if a <= b -> result :=0; fi
+write result;
+
+if a = a -> result := 0; fi
+write result;
+
+if a = a -> 
+  if b = b -> result:= 4;
+  fi
+fi
+write result;
+
+if a = a -> 
+  if a = b -> result:= a*b;
+  fi
+fi
+write result;
+

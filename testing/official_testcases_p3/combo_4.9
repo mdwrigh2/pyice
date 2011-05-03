@@ -1,0 +1,18 @@
+proc deeploop(i:int, j:int, k:int, l: int) : int
+	var s: int;
+	fa ii := 1 to i ->
+		fa jj := 1 to j ->
+			fa kk := 1 to k ->
+				fa ll := 1 to l ->
+					s := s + ll;
+				af
+				s := s + kk;
+			af
+			s := s + jj;
+		af	
+		s := s + ii;
+	af  
+	deeploop := s;
+end
+
+write deeploop(4, 5, 4, 5);

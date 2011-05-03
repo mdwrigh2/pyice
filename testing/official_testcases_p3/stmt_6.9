@@ -1,0 +1,21 @@
+#Test cases for break
+
+var a : int;
+a:=0;
+fa i := 1 to 10 ->
+  a := a+i;
+  if i = 5 -> break; fi
+af
+writes "Sum of 1 to 5: ";
+write a;
+
+a:=0;
+fa j := 1 to 10 ->
+  a := a+j;
+  fa i := 1 to 10 ->
+    if i = 5 -> break; fi
+    a := a+i;
+   af
+af
+writes "Sum of 1 to 10 plus more: ";
+write a;

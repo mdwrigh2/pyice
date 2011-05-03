@@ -1,0 +1,25 @@
+var a: bool;
+var b: bool; 
+var c: int;
+var d: int;
+c := 10;
+d := 20;
+a := c < d;
+if (a) ->
+	write "true";
+[] else ->
+	write "false";
+fi
+b := d > d;
+if (b) ->
+	write "true";
+[] else ->
+	write "false";
+fi
+b := ((c < d) != (c >= d)) != (c > d);
+
+if (b != (c < (c * d))) ->
+	write "true";
+[] else ->
+	write "false";
+fi
